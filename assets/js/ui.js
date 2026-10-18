@@ -100,7 +100,7 @@ export function dishSheetHTML(d) {
       <p class="kicker" data-prov="${esc(d.province)}">${esc(cityName(d.city))} · ${esc(CATS[d.category] || '')}</p>
       <h2 class="sheet-title">${esc(d.zh)}</h2>
       ${d.pinyin ? `<p class="pinyin">${esc(d.pinyin)}</p>` : ''}
-      <div class="facts"><span class="price-line">${priceFull(d)}</span>${spice(d.spice)}<span class="score" aria-label="主播评分 ${d.score}/5">主播评分 ${dots(d.score)}</span></div>
+      <div class="facts"><span class="price-line">${priceFull(d)}</span>${spice(d.spice)}<span class="score">主播评分 ${dots(d.score)}</span></div>
       <p>${esc(d.what_zh)}</p>
       <p class="verdict">${esc(d.verdict_zh)}</p>
       ${d.quote_zh ? `<button type="button" class="quote-btn" data-play="${esc(d.video)}" data-t="${d.t}" data-quote="${esc(d.quote_zh)}" data-who="主播">

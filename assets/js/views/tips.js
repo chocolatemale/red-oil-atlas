@@ -1,4 +1,4 @@
-import { db, esc, mmss, realCities, cityShort, cityHref, dishCount, FX, legend } from '../core.js';
+import { db, esc, mmss, realCities, cityShort, cityHref, dishCount, FX, legend, scrollBehavior } from '../core.js';
 
 export default function tipsView() {
   const D = db.D;
@@ -28,7 +28,7 @@ export default function tipsView() {
     mount(root) {
       root.addEventListener('click', (e) => {
         const a = e.target.closest('[data-jump-to]');
-        if (a) { e.preventDefault(); root.querySelector('#' + CSS.escape(a.dataset.jumpTo))?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        if (a) { e.preventDefault(); root.querySelector('#' + CSS.escape(a.dataset.jumpTo))?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' }); }
       });
     }
   };

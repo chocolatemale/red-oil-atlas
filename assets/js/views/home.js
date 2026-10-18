@@ -21,7 +21,7 @@ export default function home() {
     const n = (db.shopsByCity[c.id] || []).length;
     return `<a class="city-card" href="${cityHref(c.id)}">
       ${seal(c.id)}
-      <strong>${esc(c.vibe_tags?.[0]?.zh || cityShort(c.id))}</strong>
+      <strong><span class="sr">${esc(cityShort(c.id))}：</span>${esc(c.vibe_tags?.[0]?.zh || cityShort(c.id))}</strong>
       <span class="muted">${n} 处店摊 · ${dishCount(c.id)} 道菜</span>
       <span class="heat-line">辣 ${dots(c.spice?.la || 0)}</span>
     </a>`;

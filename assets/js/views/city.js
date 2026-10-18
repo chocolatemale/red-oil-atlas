@@ -20,7 +20,7 @@ export default function cityView(params, rawId) {
       <header class="city-head">
         ${seal(c.id, 'seal seal-lg')}
         <div><p class="kicker" data-prov="${esc(c.province)}">${esc(provName(c.province))}</p>
-        <h1 class="h1">${esc(c.vibe_tags?.[0]?.zh || cityShort(c.id))}</h1>
+        <h1 class="h1"><span class="sr">${esc(cityShort(c.id))}：</span>${esc(c.vibe_tags?.[0]?.zh || cityShort(c.id))}</h1>
         ${(c.vibe_tags || []).length > 1 ? `<p class="muted">${c.vibe_tags.slice(1).map((t) => esc(t.zh)).join(' · ')}</p>` : ''}</div>
       </header>
       <p class="verdict-lg">${esc(c.verdict_zh)}</p>

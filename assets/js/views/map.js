@@ -47,7 +47,8 @@ export default function mapView(params) {
       const declutter = () => {
         const box = root.querySelector('[data-map]').getBoundingClientRect();
         const minX = matchMedia('(min-width: 900px)').matches ? panel.getBoundingClientRect().right : box.left;
-        const placed = [];
+        // the zoom buttons and province switch sit above the pins and would swallow taps on a name
+        const placed = [...root.querySelectorAll('.leaflet-control-zoom, .map-top .seg')].map((x) => x.getBoundingClientRect());
         const order = Object.keys(pins).sort((a, b) => (b === st.city) - (a === st.city) ||
           (db.shopsByCity[b] || []).length - (db.shopsByCity[a] || []).length);
         for (const id of order) {
@@ -119,8 +120,8 @@ export default function mapView(params) {
         const seg = e.target.closest('[data-seg="p"] button');
         if (seg) { st.p = seg.dataset.v; st.city = ''; st.shop = ''; draw(); fitProvince(); return; }
         const city = e.target.closest('[data-city]');
-        if (city) { st.city = city.dataset.city; st.shop = ''; panel.classList.add('open'); draw(); return; }
-        if (e.target.closest('[data-up]')) { st.city = ''; st.shop = ''; draw(); fitProvince(); return; }
+        if (city) { st.city = city.dataset.city; st.shop = ''; panel.classList.add('open'); draw(); body.querySelector('[data-up]')?.focus({ preventScroll: true }); return; }
+        if (e.target.closest('[data-up]')) { st.city = ''; st.shop = ''; draw(); fitProvince(); body.querySelector('[data-city]')?.focus({ preventScroll: true }); return; }
         if (e.target.closest('[data-toggle]')) panel.classList.toggle('open');
       });
 

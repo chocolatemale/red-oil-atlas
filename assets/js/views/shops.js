@@ -75,7 +75,12 @@ export default function shopsView(params) {
         const seg = e.target.closest('[data-seg="p"] button');
         if (seg) { st.p = seg.dataset.v; st.city = 'all'; draw(); return; }
         const chip = e.target.closest('[data-chips="city"] button');
-        if (chip) { st.city = chip.dataset.v; draw(); chip.scrollIntoView?.({ block: 'nearest', inline: 'nearest' }); return; }
+        if (chip) {
+          st.city = chip.dataset.v; draw();
+          const now = root.querySelector(`[data-chips="city"] button[data-v="${CSS.escape(st.city)}"]`);
+          now?.focus({ preventScroll: true }); now?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+          return;
+        }
         if (e.target.closest('[data-reset]')) { st.p = 'all'; st.city = 'all'; st.status = 'all'; st.q = ''; q.value = ''; draw(); }
       });
       root.querySelector('[data-select="st"]').addEventListener('change', (e) => { st.status = e.target.value; draw(); });

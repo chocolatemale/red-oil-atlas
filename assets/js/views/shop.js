@@ -1,4 +1,4 @@
-import { db, esc, mmss, status, statusKey, mark, cityShort, cityName, provName, shopDishes, hasPoint, point, priceFull, spice, dots, shopHref, cityHref, out, yt } from '../core.js';
+import { db, esc, mmss, status, statusKey, mark, cityShort, cityName, provName, shopDishes, hasPoint, point, priceFull, spice, dots, shopHref, cityHref, out, yt, scrollBehavior } from '../core.js';
 import { amapURL, dianpingURL, ext, copy, toast } from '../links.js';
 import { iframe, videoLinks } from '../ui.js';
 import { goto } from '../nav.js';
@@ -35,7 +35,7 @@ export default function shopView(params, rawId) {
 
   const dishCard = (d) => `<article class="dish-card">
     <div class="dish-card-head"><h3 class="h3">${esc(d.zh)}</h3><span class="price-line">${priceFull(d)}</span></div>
-    <div class="facts">${spice(d.spice)}<span class="score" aria-label="主播评分 ${d.score}/5">主播评分 ${dots(d.score)}</span></div>
+    <div class="facts">${spice(d.spice)}<span class="score">主播评分 ${dots(d.score)}</span></div>
     <p>${esc(d.verdict_zh)}</p>
     ${d.quote_zh ? `<button type="button" class="quote-btn" data-seek="${esc(d.video)}" data-t="${d.t}">
       ${icon.play}<span><span>“${esc(d.quote_zh)}”</span><small>主播 · 视频 ${mmss(d.t)}</small></span></button>` : ''}
@@ -49,7 +49,7 @@ export default function shopView(params, rawId) {
       <button type="button" class="icon-btn" data-share aria-label="分享这家店">${icon.share}</button>
     </div>
     <div class="wrap shop-layout">
-      <div class="shop-main">
+      <div class="shop-top">
         <header class="shop-head o-head">
           <p class="kicker" data-prov="${esc(s.province)}">${esc(provName(s.province))} · <a href="${cityHref(s.city)}">${esc(cityName(s.city))}</a></p>
           <h1 class="h1 shop-name">${title ? `${esc(title[1])}<small>${esc(title[2])}</small>` : esc(s.name)}</h1>
@@ -67,32 +67,6 @@ export default function shopView(params, rawId) {
           <div data-video-links>${videoLinks(vid, start)}</div>
         </section>` : ''}
 
-        <section class="block o-dishes">
-          <h2 class="h2">到店吃什么</h2>
-          ${ds.length ? ds.map(dishCard).join('') : '<p class="muted">这家店没有主播逐道评分的菜，先看原片和下面的评论。</p>'}
-          ${(s.menu_notes || []).length ? `<ul class="notes-list">${s.menu_notes.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
-        </section>
-
-        <section class="block o-voices">
-          <h2 class="h2">评论怎么说</h2>
-          ${(s.comment_summary || []).length ? `<ul class="summary">${s.comment_summary.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
-          ${voices.length ? voices.map((c) => `<blockquote class="voice">
-              <p>“${esc(c.text)}”</p>
-              <footer>${esc(c.author)}${c.date ? ' · ' + esc(c.date) : ''} · ${out(c.url, c.url_precision === 'reply' ? 'B站原评论' : 'B站评论区')}</footer>
-              ${c.context ? `<small class="muted">${esc(c.context)}</small>` : ''}
-            </blockquote>`).join('')
-          : '<p class="muted">暂时没有能逐字核对的评论原文。</p>'}
-          ${bvs.length ? `<div class="bili-links"><span class="label">B站原视频</span>${bvs.map((b) => out(b.url, b.title)).join('')}</div>` : ''}
-          <details class="sources">
-            <summary>资料来源（${(s.sources || []).length} 条）</summary>
-            <ul>${(s.sources || []).map((x) => `<li>${out(x.url, x.author || '来源')}${x.date ? ` <span class="muted">${esc(x.date)}</span>` : ''}<p>${esc(x.note || '')}</p></li>`).join('')}</ul>
-          </details>
-        </section>
-
-        ${peers.length ? `<section class="block o-peers">
-          <div class="sec-head"><h2 class="h2">${esc(cityShort(s.city))}还有</h2><a href="#/shops?city=${esc(s.city)}">全部 ${(db.shopsByCity[s.city] || []).length} 家 →</a></div>
-          <ul class="shop-list">${peers.map(shopRow).join('')}</ul>
-        </section>` : ''}
       </div>
       <aside class="shop-side">
         <section class="card addr-card o-addr" aria-labelledby="addr-h">
@@ -122,6 +96,34 @@ export default function shopView(params, rawId) {
         </section>
 
       </aside>
+      <div class="shop-main">
+        <section class="block o-dishes">
+          <h2 class="h2">到店吃什么</h2>
+          ${ds.length ? ds.map(dishCard).join('') : '<p class="muted">这家店没有主播逐道评分的菜，先看原片和下面的评论。</p>'}
+          ${(s.menu_notes || []).length ? `<ul class="notes-list">${s.menu_notes.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+        </section>
+
+        <section class="block o-voices">
+          <h2 class="h2">评论怎么说</h2>
+          ${(s.comment_summary || []).length ? `<ul class="summary">${s.comment_summary.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+          ${voices.length ? voices.map((c) => `<blockquote class="voice">
+              <p>“${esc(c.text)}”</p>
+              <footer>${esc(c.author)}${c.date ? ' · ' + esc(c.date) : ''} · ${out(c.url, c.url_precision === 'reply' ? 'B站原评论' : 'B站评论区')}</footer>
+              ${c.context ? `<small class="muted">${esc(c.context)}</small>` : ''}
+            </blockquote>`).join('')
+          : '<p class="muted">暂时没有能逐字核对的评论原文。</p>'}
+          ${bvs.length ? `<div class="bili-links"><span class="label">B站原视频</span>${bvs.map((b) => out(b.url, b.title)).join('')}</div>` : ''}
+          <details class="sources">
+            <summary>资料来源（${(s.sources || []).length} 条）</summary>
+            <ul>${(s.sources || []).map((x) => `<li>${out(x.url, x.author || '来源')}${x.date ? ` <span class="muted">${esc(x.date)}</span>` : ''}<p>${esc(x.note || '')}</p></li>`).join('')}</ul>
+          </details>
+        </section>
+
+        ${peers.length ? `<section class="block o-peers">
+          <div class="sec-head"><h2 class="h2">${esc(cityShort(s.city))}还有</h2><a href="#/shops?city=${esc(s.city)}">全部 ${(db.shopsByCity[s.city] || []).length} 家 →</a></div>
+          <ul class="shop-list">${peers.map(shopRow).join('')}</ul>
+        </section>` : ''}
+      </div>
     </div>
     ${actions('actionbar')}`,
 
@@ -140,7 +142,7 @@ export default function shopView(params, rawId) {
         const seek = e.target.closest('[data-seek]');
         if (seek) { play(seek.dataset.seek, Number(seek.dataset.t)); return; }
         const jump = e.target.closest('[data-jump]');
-        if (jump) { e.preventDefault(); root.querySelector('#' + jump.dataset.jump)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+        if (jump) { e.preventDefault(); root.querySelector('#' + jump.dataset.jump)?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' }); return; }
         const c = e.target.closest('[data-copy]');
         if (c) { toast((await copy(c.dataset.copy)) ? '已复制：' + c.dataset.copy : '复制不了，请长按文字手动复制'); return; }
         if (e.target.closest('[data-share]')) {

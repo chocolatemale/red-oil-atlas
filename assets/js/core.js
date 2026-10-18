@@ -86,8 +86,8 @@ export const cad = (cny) => (cny == null ? '' : 'C$' + (cny * FX < 10 ? (cny * F
 export const yt = (id, q = 'hqdefault') => `https://i.ytimg.com/vi/${id}/${q}.jpg`;
 export const safeURL = (v) => { try { const u = new URL(v); return /^https?:$/.test(u.protocol) ? u.href : ''; } catch { return ''; } };
 export const out = (url, label, cls = '') => (safeURL(url) ? `<a class="${cls}" href="${esc(safeURL(url))}" target="_blank" rel="noopener noreferrer">${esc(label)} <span aria-hidden="true">↗</span></a>` : '');
-export const dots = (n, max = 5) => `<span class="dots" aria-hidden="true">${'<i class="on"></i>'.repeat(n)}${'<i></i>'.repeat(Math.max(0, max - n))}</span>`;
-export const spice = (sp) => `<span class="spice" aria-label="麻 ${sp.ma}/5，辣 ${sp.la}/5"><span>麻${dots(sp.ma)}</span><span>辣${dots(sp.la)}</span></span>`;
+export const dots = (n, max = 5) => `<span class="sr">${n}/${max}</span><span class="dots" aria-hidden="true">${'<i class="on"></i>'.repeat(n)}${'<i></i>'.repeat(Math.max(0, max - n))}</span>`;
+export const spice = (sp) => `<span class="spice"><span>麻${dots(sp.ma)}</span><span>辣${dots(sp.la)}</span></span>`;
 export const price = (d) => (d.price_cny ? `¥${d.price_cny}` : d.price_cny === 0 ? '免费' : '');
 export const priceFull = (d) => {
   const note = d.price_note_zh ? ` <small>${esc(d.price_note_zh)}</small>` : '';
@@ -121,6 +121,8 @@ export const session = {
   get(k) { try { return sessionStorage.getItem(k); } catch { return null; } },
   set(k, v) { try { sessionStorage.setItem(k, v); } catch { /* storage unavailable */ } }
 };
+
+export const scrollBehavior = () => (matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth');
 
 export function debounce(fn, ms = 200) {
   let t;
