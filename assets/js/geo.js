@@ -10,7 +10,8 @@ export function leaflet() {
   return (loading ||= new Promise((resolve, reject) => {
     const css = document.createElement('link');
     css.rel = 'stylesheet'; css.href = 'assets/vendor/leaflet/leaflet.css';
-    document.head.append(css);
+    // ahead of site.css, so the site's map theming wins over Leaflet's defaults
+    document.head.insertBefore(css, document.querySelector('link[href*="site.css"]'));
     const js = document.createElement('script');
     js.src = 'assets/vendor/leaflet/leaflet.js';
     js.onload = () => resolve(window.L);
@@ -56,10 +57,10 @@ const PROVIDERS = [
   {
     id: 'carto', gcj: false,
     url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-    opts: { subdomains: 'abcd', maxZoom: 19, attribution: '底图 © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> 贡献者 © CARTO' }
+    opts: { subdomains: 'abcd', maxZoom: 19, attribution: '底图 © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> 贡献者 © CARTO' }
   }
 ];
-let preferred = 0; // remembered for the session once a provider fails
+let preferred = 0; // the last provider that actually served a tile this session
 
 /* map.json paths are absolute M/L/Z in a simple equirectangular projection. */
 function outlines(project) {
@@ -95,7 +96,8 @@ export async function makeMap(el, opts = {}) {
   });
   map.attributionControl.setPrefix('');
   if (opts.zoomControl) L.control.zoom({ position: opts.zoomPosition || 'bottomright', zoomInTitle: '放大', zoomOutTitle: '缩小' }).addTo(map);
-  const near = () => el.classList.toggle('zoom-near', map.getZoom() >= 12);
+  // circles only read as areas from about z10; names fit from z12
+  const near = () => { el.classList.toggle('zoom-mid', map.getZoom() >= 10); el.classList.toggle('zoom-near', map.getZoom() >= 12); };
   map.on('zoomend', near);
 
   let p = preferred, tiles = null;
@@ -115,29 +117,36 @@ export async function makeMap(el, opts = {}) {
     opts.draw?.(ctl);
   };
 
-  const useProvider = (i) => {
+  const useProvider = (i, switching = false) => {
     if (tiles) { map.removeLayer(tiles); tiles = null; }
-    p = i; preferred = i;
+    p = i;
     el.dataset.tiles = PROVIDERS[i]?.id || 'none';
-    if (!PROVIDERS[i]) { drawAll(); opts.onTilesFailed?.(); return; }
-    let ok = false, errors = 0;
-    tiles = L.tileLayer(PROVIDERS[i].url, { ...PROVIDERS[i].opts, className: 'base-tiles', detectRetina: false });
-    tiles.on('tileload', () => { ok = true; });
-    tiles.on('tileerror', () => { if (!ok && ++errors >= 4) useProvider(i + 1); });
-    tiles.addTo(map); tiles.bringToBack();
+    if (PROVIDERS[i]) {
+      let ok = false, errors = 0;
+      tiles = L.tileLayer(PROVIDERS[i].url, { ...PROVIDERS[i].opts, className: 'base-tiles', detectRetina: false });
+      tiles.on('tileload', () => { ok = true; preferred = i; });
+      tiles.on('tileerror', () => { if (!ok && ++errors >= 4) useProvider(i + 1, true); });
+      tiles.addTo(map); tiles.bringToBack();
+    }
     drawAll();
+    // the overlays were rebuilt (maybe in another datum): let the view restore its selection and framing
+    if (switching) opts.onRedraw?.(ctl);
+    if (!PROVIDERS[i]) opts.onTilesFailed?.();
   };
 
-  ctl.fit = (points, maxZoom = 13, pad = {}) => {
+  // radius (metres): frame whole circles, not just their centres
+  ctl.fit = (points, maxZoom = 13, pad = {}, radius = 0) => {
     const pts = points.filter(Boolean).map(([a, b]) => L.latLng(ll(a, b)));
     if (!pts.length) return;
-    const bounds = pts.length === 1 ? pts[0].toBounds(1200) : L.latLngBounds(pts);
+    const bounds = pts.length === 1 ? pts[0].toBounds(Math.max(1200, radius * 2.4))
+      : radius ? pts.reduce((b, x) => b.extend(x.toBounds(radius * 2)), L.latLngBounds(pts)) : L.latLngBounds(pts);
     map.fitBounds(bounds, { paddingTopLeft: pad.tl || [36, 36], paddingBottomRight: pad.br || [36, 36], maxZoom });
   };
   ctl.destroy = () => map.remove();
   ctl.redraw = drawAll;
   // Leaflet needs a view before tiles; draw() sets the real one with fit().
   map.setView([26.5, 104], 6);
+  near();
   useProvider(p);
   return ctl;
 }

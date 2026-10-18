@@ -1,4 +1,4 @@
-import { db, esc, shops, realCities, dishCount, seal, dots, cityShort, cityHref, price, thumb } from '../core.js';
+import { db, esc, safeURL, shops, realCities, dishCount, seal, dots, cityShort, cityHref, price, thumb } from '../core.js';
 import { icon } from '../icons.js';
 import { goto } from '../nav.js';
 
@@ -33,7 +33,7 @@ export default function home() {
       <div class="hero-copy">
         <p class="eyebrow">贵州优先 · ${D.videos.length} 期视频 · ${all.length} 家店</p>
         <h1 class="display">西南，一碗一碗<br>吃过去。</h1>
-        <p class="lede">跟着<a href="${esc(D.channel.url)}" target="_blank" rel="noopener">盗月社</a>找店。先看主播吃了什么、说了什么，再把地址带走：一键复制，一键打开高德。</p>
+        <p class="lede">跟着<a href="${esc(safeURL(D.channel.url))}" target="_blank" rel="noopener noreferrer">盗月社</a>找店。先看主播吃了什么、说了什么，再把地址带走：一键复制，一键打开高德。</p>
         <form class="search-box" role="search" data-home-search>
           <label for="home-q" class="sr">搜索店名、菜名或城市</label>
           ${icon.search}
@@ -83,7 +83,7 @@ export default function home() {
     </section>
 
     <footer class="foot wrap">
-      <p>所有画面、原话版权归<a href="${esc(D.channel.url)}" target="_blank" rel="noopener">盗月社</a>所有，视频和封面直接从 YouTube 加载，欢迎去原频道点赞订阅。本站是非官方的粉丝旅行指南。</p>
+      <p>所有画面、原话版权归<a href="${esc(safeURL(D.channel.url))}" target="_blank" rel="noopener noreferrer">盗月社</a>所有，视频和封面直接从 YouTube 加载，欢迎去原频道点赞订阅。本站是非官方的粉丝旅行指南。</p>
       <p class="muted">整理方法：${D.videos.length} 期视频（约 ${hours} 小时）逐期依据字幕或转录整理，另读 B站评论补店名和地址。评论线索、交叉资料、待核实地址逐店标明。${esc(D.generated)} 更新。</p>
     </footer>`,
     mount(root) {

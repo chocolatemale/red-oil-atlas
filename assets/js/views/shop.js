@@ -145,8 +145,12 @@ export default function shopView(params, rawId) {
         if (c) { toast((await copy(c.dataset.copy)) ? '已复制：' + c.dataset.copy : '复制不了，请长按文字手动复制'); return; }
         if (e.target.closest('[data-share]')) {
           const url = location.href.split('#')[0] + shopHref(s);
-          if (navigator.share) { try { await navigator.share({ title: s.name + ' · 红油地图', url }); } catch { /* cancelled */ } }
-          else toast((await copy(url)) ? '链接已复制' : url);
+          try {
+            if (!navigator.share) throw new Error('no share');
+            await navigator.share({ title: s.name + ' · 红油地图', url });
+          } catch (err) {
+            if (err?.name !== 'AbortError') toast((await copy(url)) ? '链接已复制' : url); // cancelled sheets stay quiet
+          }
         }
       });
       const el = root.querySelector('[data-mini-map]');
@@ -154,10 +158,12 @@ export default function shopView(params, rawId) {
         const io = new IntersectionObserver(async (entries) => {
           if (!entries.some((x) => x.isIntersecting)) return;
           io.disconnect();
-          const desktop = matchMedia('(min-width: 900px)').matches;
+          // drag-to-pan only with a mouse; on touch screens the preview stays still and opens the full map
+          const desktop = matchMedia('(min-width: 900px) and (hover: hover) and (pointer: fine)').matches;
           try {
             mapCtl = await makeMap(el, {
               interactive: desktop, zoomControl: desktop, wheel: false,
+              onTilesFailed() { el.insertAdjacentHTML('beforeend', '<p class="map-fail">道路底图加载不了，圈出的是大概范围。</p>'); },
               draw({ L, layer, ll, fit }) {
                 const others = (db.shopsByCity[s.city] || []).filter((x) => x.id !== s.id && hasPoint(x));
                 for (const o of others) {

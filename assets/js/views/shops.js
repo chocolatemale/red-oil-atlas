@@ -16,7 +16,7 @@ export function shopRow(s) {
 
 export default function shopsView(params) {
   const st = {
-    p: params.get('p') || 'all', city: params.get('city') || 'all', status: params.get('st') || 'all', q: params.get('q') || ''
+    p: params.get('p') || 'all', city: params.get('city') || 'all', status: STATUS[params.get('st')] ? params.get('st') : 'all', q: params.get('q') || ''
   };
   if (st.city !== 'all' && db.city[st.city]) st.p = db.city[st.city].province;
   const provs = PROV_ORDER.filter((p) => shops().some((s) => s.province === p));

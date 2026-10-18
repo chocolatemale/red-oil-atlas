@@ -11,6 +11,8 @@ const hit = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom &
 
 export default function mapView(params) {
   const st = { p: params.get('p') || 'all', city: params.get('city') || '', shop: params.get('shop') || '', open: params.get('open') === '1' };
+  // a shop decides its city, so the panel and the map always show the same place
+  if (st.shop) { if (db.shop[st.shop]) st.city = db.shop[st.shop].city; else st.shop = ''; }
   if (st.city && !db.city[st.city]) st.city = '';
   if (st.city) st.p = db.city[st.city].province;
 
@@ -35,7 +37,7 @@ export default function mapView(params) {
       const pins = {}, areas = {};
       const pad = () => (matchMedia('(min-width: 900px)').matches
         ? { tl: [420, 80], br: [60, 40] }
-        : { tl: [32, 72], br: [32, sheetHeight() + 24] });
+        : { tl: [32, 100], br: [32, sheetHeight() + 24] }); // top: province control plus a circle's name
       // the sheet animates its max-height, so pad for the height it is heading to rather than the one it has now
       const sheetHeight = () => Math.min(panel.firstElementChild.offsetHeight + body.scrollHeight,
         root.querySelector('[data-map]').clientHeight * (panel.classList.contains('open') ? 0.6 : 0.4));
@@ -94,7 +96,7 @@ export default function mapView(params) {
           <p class="muted fine">${located.length ? `${located.length} 家有公开坐标，画成范围圈（约 ${RADIUS} 米），不是门口。` : ''}其余 ${list.length - located.length} 家只知道在${esc(cityShort(st.city))}，地图上不画点，点“高德”按店名搜。</p>
           <ul class="pick-list">${list.map(shopItem).join('')}</ul>`;
         if (c && !isPseudoCity(c.id)) {
-          if (located.length) ctl?.fit(located.map(point), 14, pad());
+          if (located.length) ctl?.fit(located.map(point), 14, pad(), RADIUS);
           else ctl?.fit([[c.lat, c.lon]], 11, pad());
         }
       };
@@ -126,6 +128,7 @@ export default function mapView(params) {
         try {
           ctl = await makeMap(root.querySelector('[data-map]'), {
             interactive: true, zoomControl: true, zoomPosition: 'topright',
+            onRedraw() { if (!ctl) return; draw(); if (!st.city) fitProvince(); },
             onTilesFailed() {
               const m = root.querySelector('[data-msg]');
               m.hidden = false; m.textContent = '道路底图加载不了，先显示省界和城市位置。';
@@ -154,7 +157,7 @@ export default function mapView(params) {
           });
           if (!alive) { ctl.destroy(); return; }
           ctl.map.on('moveend', declutter);
-          if (st.shop && db.shop[st.shop] && hasPoint(db.shop[st.shop])) { panel.classList.add('open'); draw(); ctl.fit([point(db.shop[st.shop])], 15, pad()); }
+          if (st.shop && db.shop[st.shop] && hasPoint(db.shop[st.shop])) { panel.classList.add('open'); draw(); ctl.fit([point(db.shop[st.shop])], 15, pad(), RADIUS); }
           else if (st.city) { panel.classList.add('open'); draw(); }
           else fitProvince();
           if (st.city || st.shop) panel.classList.add('open');
