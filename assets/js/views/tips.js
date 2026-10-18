@@ -1,4 +1,4 @@
-import { db, esc, mmss, realCities, cityShort, cityHref, dishCount, FX } from '../core.js';
+import { db, esc, mmss, realCities, cityShort, cityHref, dishCount, FX, legend } from '../core.js';
 
 export default function tipsView() {
   const D = db.D;
@@ -14,7 +14,7 @@ export default function tipsView() {
         <section class="card"><h2 class="h3">价格</h2>
           <p>价格都是拍摄当时的，可能已经涨了。C$ 是加元，按 1 元人民币约 ${FX} 加元换算。</p></section>
         <section class="card"><h2 class="h3">店址</h2>
-          <p>● 地址有交叉资料，◐ 地址来自评论，○ 店址还没锁定。建档不等于今天还在营业，出发前用高德或点评再核对一次。</p></section>
+          <p class="legend">${legend()}</p><p>建档不等于今天还在营业，出发前用高德或点评再核对一次。</p></section>
       </div>
       <nav class="pill-row jump-row" aria-label="跳到城市">${cities.map((c) => `<a class="pill" href="#tips-${esc(c.id)}" data-jump-to="tips-${esc(c.id)}">${esc(cityShort(c.id))}</a>`).join('')}</nav>
       ${cities.map((c) => `<section class="block" id="tips-${esc(c.id)}">

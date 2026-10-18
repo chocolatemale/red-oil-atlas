@@ -1,5 +1,5 @@
 import { db, esc, mmss, provName, cityShort, cityHref, shopHref, yt, out, PROV_ORDER } from '../core.js';
-import { setParams } from '../main.js';
+import { setParams } from '../nav.js';
 
 export default function videosView(params) {
   const st = { p: params.get('p') || 'all' };

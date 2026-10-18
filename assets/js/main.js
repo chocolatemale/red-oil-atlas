@@ -1,5 +1,6 @@
 /* Red Oil Atlas · 红油地图 — hash router and app shell. */
 import { $, $$, esc, load, session } from './core.js';
+import { nav, current, goto } from './nav.js';
 import { initSheet, openDish, openPlayer, closeSheet } from './ui.js';
 import home from './views/home.js';
 import shopsView from './views/shops.js';
@@ -27,29 +28,7 @@ function legacy(h) {
   return map[h] ?? '/';
 }
 
-export function current() {
-  const h = location.hash.replace(/^#/, '');
-  const [path, qs = ''] = h.split('?');
-  let p = path || '/';
-  try { p = decodeURI(p); } catch { /* keep raw */ }
-  return { path: p, params: new URLSearchParams(qs), key: location.hash || '#/' };
-}
-
-/* Filters live in the URL (replaceState: no extra history entries), so going
- * back to a list, sharing it or reloading it shows the same thing. */
-export function setParams(obj) {
-  const { path, params } = current();
-  for (const [k, v] of Object.entries(obj)) {
-    if (v === '' || v == null || v === false) params.delete(k); else params.set(k, v);
-  }
-  const qs = params.toString();
-  const url = '#' + path + (qs ? '?' + qs : '');
-  history.replaceState(history.state, '', url);
-  lastKey = url;
-}
-
-let navClick = false, lastIdx = 0, lastKey = '', cleanup = null, saving = true;
-export const goto = (hash) => { navClick = true; location.hash = hash; };
+let lastIdx = 0, cleanup = null, saving = true;
 
 function render() {
   const { path, params, key } = current();
@@ -58,7 +37,7 @@ function render() {
 
   // history index: lets "back" buttons use real history (keeping scroll) when there is one
   const st = history.state || {};
-  if (st.idx == null) history.replaceState({ ...st, idx: navClick ? lastIdx + 1 : 0 }, '');
+  if (st.idx == null) history.replaceState({ ...st, idx: nav.click ? lastIdx + 1 : 0 }, '');
   lastIdx = history.state.idx;
 
   let view = null, match = null;
@@ -81,9 +60,9 @@ function render() {
   });
   cleanup = out.mount?.(root) || null;
 
-  const y = navClick ? 0 : Number(session.get('y:' + key) || 0);
-  const fromClick = navClick;
-  navClick = false; lastKey = location.hash || '#/';
+  const y = nav.click ? 0 : Number(session.get('y:' + key) || 0);
+  const fromClick = nav.click;
+  nav.click = false; nav.lastKey = location.hash || '#/';
   requestAnimationFrame(() => {
     window.scrollTo(0, y);
     saving = true;
@@ -98,7 +77,7 @@ function wire() {
     const back = e.target.closest('[data-back]');
     if (back && (history.state?.idx || 0) > 0) { e.preventDefault(); history.back(); return; }
     const a = e.target.closest('a[href^="#/"]');
-    if (a && a.getAttribute('href') !== location.hash) navClick = true;
+    if (a && a.getAttribute('href') !== location.hash) nav.click = true;
     const dish = e.target.closest('[data-dish]');
     if (dish) { e.preventDefault(); openDish(dish.dataset.dish); return; }
     const play = e.target.closest('[data-play]');
@@ -126,7 +105,7 @@ function wire() {
     clearTimeout(t);
     t = setTimeout(() => session.set('y:' + (location.hash || '#/'), String(Math.round(window.scrollY))), 120);
   }, { passive: true });
-  window.addEventListener('hashchange', () => { if ((location.hash || '#/') !== lastKey) render(); });
+  window.addEventListener('hashchange', () => { if ((location.hash || '#/') !== nav.lastKey) render(); });
   initSheet((to) => goto(to));
 }
 

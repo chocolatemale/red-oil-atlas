@@ -1,6 +1,6 @@
 import { db, esc, shops, realCities, dishCount, seal, dots, cityShort, cityHref, price, thumb } from '../core.js';
 import { icon } from '../icons.js';
-import { goto } from '../main.js';
+import { goto } from '../nav.js';
 
 const FEATURED_CITIES = ['zunyi', 'kaili', 'guiyang', 'anshun', 'kunming', 'mangshi'];
 

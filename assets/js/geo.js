@@ -94,7 +94,9 @@ export async function makeMap(el, opts = {}) {
     keyboard: interactive, tap: false, zoomSnap: 0.5, minZoom: 4
   });
   map.attributionControl.setPrefix('');
-  if (opts.zoomControl) L.control.zoom({ position: 'bottomright', zoomInTitle: '放大', zoomOutTitle: '缩小' }).addTo(map);
+  if (opts.zoomControl) L.control.zoom({ position: opts.zoomPosition || 'bottomright', zoomInTitle: '放大', zoomOutTitle: '缩小' }).addTo(map);
+  const near = () => el.classList.toggle('zoom-near', map.getZoom() >= 12);
+  map.on('zoomend', near);
 
   let p = preferred, tiles = null;
   const outlineLayer = L.layerGroup().addTo(map);
@@ -126,11 +128,11 @@ export async function makeMap(el, opts = {}) {
     drawAll();
   };
 
-  ctl.fit = (points, maxZoom = 13, padding = [36, 36]) => {
-    const pts = points.filter(Boolean).map(([a, b]) => ll(a, b));
+  ctl.fit = (points, maxZoom = 13, pad = {}) => {
+    const pts = points.filter(Boolean).map(([a, b]) => L.latLng(ll(a, b)));
     if (!pts.length) return;
-    if (pts.length === 1) map.setView(pts[0], maxZoom);
-    else map.fitBounds(pts, { padding, maxZoom });
+    const bounds = pts.length === 1 ? pts[0].toBounds(1200) : L.latLngBounds(pts);
+    map.fitBounds(bounds, { paddingTopLeft: pad.tl || [36, 36], paddingBottomRight: pad.br || [36, 36], maxZoom });
   };
   ctl.destroy = () => map.remove();
   ctl.redraw = drawAll;

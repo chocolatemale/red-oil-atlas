@@ -1,6 +1,6 @@
-import { db, esc, shops, sortShops, status, statusKey, STATUS, cityShort, provName, shopHref, shopThumb, shopDishes, thumb, shopText, debounce, realCities, PROV_ORDER } from '../core.js';
+import { db, esc, shops, sortShops, status, statusKey, mark, legend, STATUS, cityShort, provName, shopHref, shopThumb, shopDishes, thumb, shopText, debounce, realCities, PROV_ORDER } from '../core.js';
 import { icon } from '../icons.js';
-import { setParams } from '../main.js';
+import { setParams } from '../nav.js';
 
 export function shopRow(s) {
   const ds = shopDishes(s);
@@ -10,7 +10,7 @@ export function shopRow(s) {
     <span class="shop-row-text">
       <strong>${esc(s.name)}</strong>
       <span class="muted one-line">${esc(sub)}</span>
-      <span class="row-status" data-status="${statusKey(s)}"><span aria-hidden="true">${status(s).mark}</span> ${status(s).short} · ${esc(cityShort(s.city))}</span>
+      <span class="row-status" data-status="${statusKey(s)}">${mark(statusKey(s))}${status(s).short} · ${esc(cityShort(s.city))}</span>
     </span>${icon.chevron}</a></li>`;
 }
 
@@ -37,7 +37,7 @@ export default function shopsView(params) {
             <label class="select-chip"><span class="sr">地址核实程度</span>
               <select data-select="st">
                 <option value="all">地址：全部</option>
-                ${Object.entries(STATUS).map(([k, v]) => `<option value="${k}">${v.mark} ${v.short}</option>`).join('')}
+                ${Object.entries(STATUS).map(([k, v]) => `<option value="${k}">${v.short}</option>`).join('')}
               </select></label>
             <div class="seg seg-sm" role="group" aria-label="显示方式">
               <button type="button" aria-pressed="true">${icon.list} 列表</button>
@@ -50,7 +50,7 @@ export default function shopsView(params) {
     <div class="wrap">
       <p class="muted count" aria-live="polite" data-count></p>
       <ul class="shop-list" data-list></ul>
-      <p class="fine legend">● 地址有交叉资料　◐ 地址来自评论　○ 店址还没锁定。建档不等于今天还在营业，出发前再核对。</p>
+      <p class="fine legend">${legend()}<span>建档不等于今天还在营业，出发前再核对。</span></p>
     </div>`,
     mount(root) {
       const q = root.querySelector('#shop-q');

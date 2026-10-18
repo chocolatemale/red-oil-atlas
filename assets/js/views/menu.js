@@ -1,6 +1,6 @@
 import { db, esc, CATS, PROV_ORDER, provName, cityShort, price, dots, thumb, dishText, debounce, realCities } from '../core.js';
 import { icon } from '../icons.js';
-import { setParams } from '../main.js';
+import { setParams } from '../nav.js';
 
 const SORTS = { score: '好评', price: '便宜', heat: '最辣', city: '按城市' };
 

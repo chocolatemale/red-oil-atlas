@@ -1,6 +1,6 @@
 import { db, esc, shops, sortShops, shopText, dishText, cityShort, cityHref, price, debounce } from '../core.js';
 import { icon } from '../icons.js';
-import { setParams } from '../main.js';
+import { setParams } from '../nav.js';
 import { shopRow } from './shops.js';
 
 export default function searchView(params) {

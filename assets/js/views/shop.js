@@ -1,7 +1,7 @@
-import { db, esc, mmss, status, statusKey, cityShort, cityName, provName, shopDishes, hasPoint, point, priceFull, spice, dots, shopHref, cityHref, out, yt } from '../core.js';
+import { db, esc, mmss, status, statusKey, mark, cityShort, cityName, provName, shopDishes, hasPoint, point, priceFull, spice, dots, shopHref, cityHref, out, yt } from '../core.js';
 import { amapURL, dianpingURL, ext, copy, toast } from '../links.js';
 import { iframe, videoLinks } from '../ui.js';
-import { goto } from '../main.js';
+import { goto } from '../nav.js';
 import { makeMap } from '../geo.js';
 import { icon } from '../icons.js';
 import { shopRow } from './shops.js';
@@ -53,7 +53,7 @@ export default function shopView(params, rawId) {
         <header class="shop-head o-head">
           <p class="kicker" data-prov="${esc(s.province)}">${esc(provName(s.province))} · <a href="${cityHref(s.city)}">${esc(cityName(s.city))}</a></p>
           <h1 class="h1 shop-name">${title ? `${esc(title[1])}<small>${esc(title[2])}</small>` : esc(s.name)}</h1>
-          <p class="status-pill" data-status="${statusKey(s)}"><span aria-hidden="true">${status(s).mark}</span> ${status(s).label}${s.checked ? ` · ${esc(s.checked)} 核对` : ''}</p>
+          <p class="status-pill" data-status="${statusKey(s)}">${mark(statusKey(s))}${status(s).label}${s.checked ? ` · ${esc(s.checked)} 核对` : ''}</p>
         </header>
 
         ${vid ? `<section id="watch" class="watch o-watch" data-inline-player>
@@ -112,7 +112,7 @@ export default function shopView(params, rawId) {
               <span class="map-tag">圈里是附近街区，不是门口</span>
               <a class="map-open" href="#/map?city=${esc(s.city)}&amp;shop=${esc(s.id)}">${icon.expand} 大地图</a>
             </div>
-            <p class="muted fine">${esc(s.location.note || '坐标来自公开餐馆资料，只画范围。')} 导航请用高德，按店名核对。</p>`
+            <p class="muted fine">${esc(s.location.note || '坐标来自公开餐馆资料，只画范围。导航请用高德，按店名核对。')}</p>`
           : `<div class="no-map">
               <p><strong>这家还没有可靠坐标，地图上不画点。</strong></p>
               <p class="muted">用上面的地址，或者点“${esc(amapLabel)}”按店名搜索。</p>

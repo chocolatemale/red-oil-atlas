@@ -1,10 +1,12 @@
-import { db, esc, shops, sortShops, status, statusKey, realCities, cityShort, cityName, provName, hasPoint, point, shopHref, cityHref, isPseudoCity } from '../core.js';
+import { db, esc, shops, sortShops, status, statusKey, mark, realCities, cityShort, cityName, provName, hasPoint, point, shopHref, cityHref, isPseudoCity } from '../core.js';
 import { amapURL, ext } from '../links.js';
 import { makeMap } from '../geo.js';
-import { setParams } from '../main.js';
+import { setParams } from '../nav.js';
 import { icon } from '../icons.js';
 
 const RADIUS = 500;
+// which side a city's name sits on, so neighbours don't cover each other
+const LEFT = new Set(['liupanshui', 'anshun', 'chuxiong', 'dali', 'baoshan', 'mangshi', 'yuanyang']);
 
 export default function mapView(params) {
   const st = { p: params.get('p') || 'all', city: params.get('city') || '', shop: params.get('shop') || '', open: params.get('open') === '1' };
@@ -30,6 +32,9 @@ export default function mapView(params) {
       let ctl = null, alive = true;
       const panel = root.querySelector('[data-panel]'), body = root.querySelector('[data-body]');
       const pins = {}, areas = {};
+      const pad = () => (matchMedia('(min-width: 900px)').matches
+        ? { tl: [420, 80], br: [60, 40] }
+        : { tl: [24, 72], br: [24, panel.offsetHeight + 24] });
 
       const cityList = () => {
         const list = realCities(st.p).filter((c) => (db.shopsByCity[c.id] || []).length);
@@ -43,7 +48,7 @@ export default function mapView(params) {
         const amap = amapURL(s.map_url);
         return `<li class="${s.id === st.shop ? 'on' : ''}" data-shop-li="${esc(s.id)}">
           <a class="pick-shop" href="${shopHref(s)}"><strong>${esc(s.name)}</strong>
-          <span class="row-status" data-status="${statusKey(s)}"><span aria-hidden="true">${status(s).mark}</span> ${hasPoint(s) ? '有街区坐标 · ' : ''}${status(s).short}</span></a>
+          <span class="row-status" data-status="${statusKey(s)}">${mark(statusKey(s))}${hasPoint(s) ? '有街区坐标 · ' : ''}${status(s).short}</span></a>
           ${amap ? ext(amap, '高德 <span aria-hidden="true">↗</span>', 'btn btn-soft btn-sm') : ''}
         </li>`;
       };
@@ -58,8 +63,8 @@ export default function mapView(params) {
           <p class="muted fine">${located.length ? `${located.length} 家有公开坐标，画成范围圈（约 ${RADIUS} 米），不是门口。` : ''}其余 ${list.length - located.length} 家只知道在${esc(cityShort(st.city))}，地图上不画点，点“高德”按店名搜。</p>
           <ul class="pick-list">${list.map(shopItem).join('')}</ul>`;
         if (c && !isPseudoCity(c.id)) {
-          if (located.length) ctl?.fit(located.map(point).concat(located.length === 1 ? [[c.lat, c.lon]] : []), 14, [48, 48]);
-          else ctl?.fit([[c.lat, c.lon]], 11);
+          if (located.length) ctl?.fit(located.map(point), 14, pad());
+          else ctl?.fit([[c.lat, c.lon]], 11, pad());
         }
       };
 
@@ -73,7 +78,7 @@ export default function mapView(params) {
 
       const fitProvince = () => {
         const cs = realCities(st.p).filter((c) => (db.shopsByCity[c.id] || []).length);
-        ctl?.fit(cs.map((c) => [c.lat, c.lon]), 9, [40, 40]);
+        ctl?.fit(cs.map((c) => [c.lat, c.lon]), 9, pad());
       };
 
       root.addEventListener('click', (e) => {
@@ -88,7 +93,7 @@ export default function mapView(params) {
       (async () => {
         try {
           ctl = await makeMap(root.querySelector('[data-map]'), {
-            interactive: true, zoomControl: true,
+            interactive: true, zoomControl: true, zoomPosition: 'topright',
             onTilesFailed() {
               const m = root.querySelector('[data-msg]');
               m.hidden = false; m.textContent = '道路底图加载不了，先显示省界和城市位置。';
@@ -98,7 +103,7 @@ export default function mapView(params) {
                 const n = (db.shopsByCity[c.id] || []).length;
                 if (!n) continue;
                 const m = L.marker(ll(c.lat, c.lon), {
-                  icon: L.divIcon({ className: 'pin-wrap', html: `<span class="pin" data-prov="${c.province}"><b>${n}</b>${esc(cityShort(c.id))}</span>`, iconSize: null, iconAnchor: [0, 0] }),
+                  icon: L.divIcon({ className: 'pin-wrap', html: `<span class="pin" data-prov="${c.province}" data-side="${LEFT.has(c.id) ? 'l' : 'r'}"><b>${n}</b>${esc(cityShort(c.id))}</span>`, iconSize: null, iconAnchor: [0, 0] }),
                   title: `${cityName(c.id)}，${n} 家店`, keyboard: true, riseOnHover: true
                 }).addTo(layer);
                 m.on('click', () => { st.city = c.id; st.shop = ''; draw(); panel.classList.add('open'); });
@@ -106,7 +111,7 @@ export default function mapView(params) {
               }
               for (const s of shops().filter(hasPoint)) {
                 const a = L.circle(ll(...point(s)), { radius: RADIUS, className: 'area' + (s.id === st.shop ? ' area-on' : '') }).addTo(layer);
-                a.bindTooltip(esc(s.name), { direction: 'top', className: 'area-tip' });
+                a.bindTooltip(esc(s.name.replace(/（.*$/, '')), { permanent: true, direction: 'top', className: 'area-label', offset: [0, -6] });
                 a.on('click', () => {
                   st.city = s.city; st.shop = s.id; draw(); panel.classList.add('open');
                   body.querySelector(`[data-shop-li="${CSS.escape(s.id)}"]`)?.scrollIntoView({ block: 'nearest' });
@@ -116,8 +121,8 @@ export default function mapView(params) {
             }
           });
           if (!alive) { ctl.destroy(); return; }
-          if (st.shop && db.shop[st.shop] && hasPoint(db.shop[st.shop])) { draw(); ctl.fit([point(db.shop[st.shop])], 15); }
-          else if (st.city) draw();
+          if (st.shop && db.shop[st.shop] && hasPoint(db.shop[st.shop])) { panel.classList.add('open'); draw(); ctl.fit([point(db.shop[st.shop])], 15, pad()); }
+          else if (st.city) { panel.classList.add('open'); draw(); }
           else fitProvince();
           if (st.city || st.shop) panel.classList.add('open');
         } catch {
