@@ -26,8 +26,8 @@ export default function searchView(params) {
         const ss = sortShops(shops().filter((s) => shopText(s).includes(n)));
         const ds = db.D.dishes.filter((d) => dishText(d).includes(n)).sort((a, b) => b.score - a.score);
         out.innerHTML = (cs.length ? `<section class="block"><h2 class="h3">城市</h2><div class="pill-row">${cs.map((c) => `<a class="pill" href="${cityHref(c.id)}">${esc(cityShort(c.id))}</a>`).join('')}</div></section>` : '') +
-          (ss.length ? `<section class="block"><h2 class="h3">店铺 · ${ss.length}</h2><ul class="shop-list">${ss.slice(0, 20).map(shopRow).join('')}</ul></section>` : '') +
-          (ds.length ? `<section class="block"><h2 class="h3">菜 · ${ds.length}</h2><ul class="plain-list">${ds.slice(0, 20).map((d) => `<li><button type="button" class="link-btn" data-dish="${esc(d.id)}">${esc(d.zh)}</button> <span class="muted">${esc(cityShort(d.city))}${price(d) ? ' · ' + price(d) : ''}</span></li>`).join('')}</ul></section>` : '') ||
+          (ss.length ? `<section class="block"><h2 class="h3">店铺 · ${ss.length}</h2><ul class="shop-list">${ss.slice(0, 20).map(shopRow).join('')}</ul>${ss.length > 20 ? `<p><a href="#/shops?q=${encodeURIComponent(st.q.trim())}">看全部 ${ss.length} 家 →</a></p>` : ''}</section>` : '') +
+          (ds.length ? `<section class="block"><h2 class="h3">菜 · ${ds.length}</h2>${ds.length > 20 ? `<p><a href="#/menu?q=${encodeURIComponent(st.q.trim())}">看全部 ${ds.length} 道 →</a></p>` : ''}<ul class="plain-list">${ds.slice(0, 20).map((d) => `<li><button type="button" class="link-btn" data-dish="${esc(d.id)}">${esc(d.zh)}</button> <span class="muted">${esc(cityShort(d.city))}${price(d) ? ' · ' + price(d) : ''}</span></li>`).join('')}</ul></section>` : '') ||
           `<p class="muted">没有找到“${esc(st.q.trim())}”。换个说法，比如只写菜名的一部分。</p>`;
       };
       const typed = debounce(() => { st.q = input.value; draw(); }, 150);

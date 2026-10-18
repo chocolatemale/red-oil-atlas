@@ -82,7 +82,7 @@ export default function mapView(params) {
         return `<li class="${s.id === st.shop ? 'on' : ''}" data-shop-li="${esc(s.id)}">
           <a class="pick-shop" href="${shopHref(s)}"><strong>${esc(s.name)}</strong>
           <span class="row-status" data-status="${statusKey(s)}">${mark(statusKey(s))}${hasPoint(s) ? '有街区坐标 · ' : ''}${status(s).short}</span></a>
-          ${amap ? ext(amap, '高德 <span aria-hidden="true">↗</span>', 'btn btn-soft btn-sm') : ''}
+          ${amap ? ext(amap, `${s.map_scope === 'region' ? '高德·一带' : '高德'} <span aria-hidden="true">↗</span>`, 'btn btn-soft btn-sm') : ''}
         </li>`;
       };
 
@@ -93,7 +93,7 @@ export default function mapView(params) {
             <button type="button" class="icon-btn" data-up aria-label="回到城市列表">${icon.back}</button>
             <h2 class="h2">${esc(cityShort(st.city))} · ${list.length} 家</h2>
             <a href="${cityHref(st.city)}">城市总评 →</a></div>
-          <p class="muted fine">${located.length ? `${located.length} 家有公开坐标，画成范围圈（约 ${RADIUS} 米），不是门口。` : ''}其余 ${list.length - located.length} 家只知道在${esc(cityShort(st.city))}，地图上不画点，点“高德”按店名搜。</p>
+          <p class="muted fine">${located.length ? `${located.length} 家有公开坐标，画成范围圈（约 ${RADIUS} 米），不是门口。` : ''}其余 ${list.length - located.length} 家只知道在${esc(cityShort(st.city))}，地图上不画点。</p>
           <ul class="pick-list">${list.map(shopItem).join('')}</ul>`;
         if (c && !isPseudoCity(c.id)) {
           if (located.length) ctl?.fit(located.map(point), 14, pad(), RADIUS);
@@ -128,6 +128,7 @@ export default function mapView(params) {
         try {
           ctl = await makeMap(root.querySelector('[data-map]'), {
             interactive: true, zoomControl: true, zoomPosition: 'topright',
+            attributionPosition: matchMedia('(min-width: 900px)').matches ? 'bottomright' : 'topright',
             onRedraw() { if (!ctl) return; draw(); if (!st.city) fitProvince(); },
             onTilesFailed() {
               const m = root.querySelector('[data-msg]');
@@ -146,7 +147,7 @@ export default function mapView(params) {
               }
               for (const s of shops().filter(hasPoint)) {
                 const a = L.circle(ll(...point(s)), { radius: RADIUS, className: 'area' + (s.id === st.shop ? ' area-on' : '') }).addTo(layer);
-                a.bindTooltip(esc(s.name.replace(/（.*$/, '')), { permanent: true, direction: 'top', className: 'area-label', offset: [0, -6] });
+                a.bindTooltip(esc(s.name), { permanent: true, direction: 'top', className: 'area-label', offset: [0, -6] });
                 a.on('click', () => {
                   st.city = s.city; st.shop = s.id; panel.classList.add('open'); draw();
                   body.querySelector(`[data-shop-li="${CSS.escape(s.id)}"]`)?.scrollIntoView({ block: 'nearest' });

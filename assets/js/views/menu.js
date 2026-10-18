@@ -7,7 +7,7 @@ const SORTS = { score: '好评', price: '便宜', heat: '最辣', city: '按城�
 export default function menuView(params) {
   const st = {
     q: params.get('q') || '', cat: params.get('cat') || 'all', p: params.get('p') || 'all', city: params.get('city') || '',
-    sort: SORTS[params.get('sort')] ? params.get('sort') : 'score', heat: Math.min(5, Math.max(0, Number(params.get('heat') ?? 5)))
+    sort: SORTS[params.get('sort')] ? params.get('sort') : 'score', heat: Number.isFinite(Number(params.get('heat') ?? 5)) ? Math.min(5, Math.max(0, Math.round(Number(params.get('heat') ?? 5)))) : 5
   };
   if (st.city && !db.city[st.city]) st.city = '';
   const D = db.D;

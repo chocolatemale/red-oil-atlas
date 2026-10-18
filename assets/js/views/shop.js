@@ -81,7 +81,7 @@ export default function shopView(params, rawId) {
               <footer>${esc(c.author)}${c.date ? ' · ' + esc(c.date) : ''} · ${out(c.url, c.url_precision === 'reply' ? 'B站原评论' : 'B站评论区')}</footer>
               ${c.context ? `<small class="muted">${esc(c.context)}</small>` : ''}
             </blockquote>`).join('')
-          : `<p class="muted">${esc(s.comment_voices_missing_reason || '暂时没有能逐字核对的评论原文。')}</p>`}
+          : '<p class="muted">暂时没有能逐字核对的评论原文。</p>'}
           ${bvs.length ? `<div class="bili-links"><span class="label">B站原视频</span>${bvs.map((b) => out(b.url, b.title)).join('')}</div>` : ''}
           <details class="sources">
             <summary>资料来源（${(s.sources || []).length} 条）</summary>
@@ -115,7 +115,7 @@ export default function shopView(params, rawId) {
             <p class="muted fine">${esc(s.location.note || '坐标来自公开餐馆资料，只画范围。导航请用高德，按店名核对。')}</p>`
           : `<div class="no-map">
               <p><strong>这家还没有可靠坐标，地图上不画点。</strong></p>
-              <p class="muted">用上面的地址，或者点“${esc(amapLabel)}”按店名搜索。</p>
+              <p class="muted">${s.map_scope === 'region' ? `用上面的地址找。“${esc(amapLabel)}”只能打开大致区域，到了再按店名问。` : `用上面的地址，或者点“${esc(amapLabel)}”按店名搜索。`}</p>
               <a href="#/map?city=${esc(s.city)}">在地图上看${esc(cityShort(s.city))}的其他店 →</a>
             </div>`}
           ${actions('actions-inline')}

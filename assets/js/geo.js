@@ -90,12 +90,12 @@ export async function makeMap(el, opts = {}) {
   const L = await leaflet();
   const interactive = opts.interactive !== false;
   const map = L.map(el, {
-    zoomControl: false, attributionControl: true, dragging: interactive, touchZoom: interactive,
+    zoomControl: false, attributionControl: false, dragging: interactive, touchZoom: interactive,
     doubleClickZoom: interactive, scrollWheelZoom: interactive && opts.wheel !== false, boxZoom: false,
     keyboard: interactive, tap: false, zoomSnap: 0.5, minZoom: 4
   });
-  map.attributionControl.setPrefix('');
   if (opts.zoomControl) L.control.zoom({ position: opts.zoomPosition || 'bottomright', zoomInTitle: '放大', zoomOutTitle: '缩小' }).addTo(map);
+  L.control.attribution({ position: opts.attributionPosition || 'bottomright', prefix: '' }).addTo(map);
   // circles only read as areas from about z10; names fit from z12
   const near = () => { el.classList.toggle('zoom-mid', map.getZoom() >= 10); el.classList.toggle('zoom-near', map.getZoom() >= 12); };
   map.on('zoomend', near);
@@ -142,7 +142,7 @@ export async function makeMap(el, opts = {}) {
       : radius ? pts.reduce((b, x) => b.extend(x.toBounds(radius * 2)), L.latLngBounds(pts)) : L.latLngBounds(pts);
     map.fitBounds(bounds, { paddingTopLeft: pad.tl || [36, 36], paddingBottomRight: pad.br || [36, 36], maxZoom });
   };
-  ctl.destroy = () => map.remove();
+  ctl.destroy = () => { map.stop(); map.remove(); };
   ctl.redraw = drawAll;
   // Leaflet needs a view before tiles; draw() sets the real one with fit().
   map.setView([26.5, 104], 6);

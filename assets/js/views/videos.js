@@ -5,13 +5,14 @@ export default function videosView(params) {
   const st = { p: params.get('p') || 'all' };
   const D = db.D;
   const provs = PROV_ORDER.filter((p) => D.videos.some((v) => v.province === p));
+  const years = D.videos.map((v) => (v.upload_date || '').slice(0, 4)).filter(Boolean).sort();
   const pendingBy = PROV_ORDER.map((p) => ({ p, list: (D.pending || []).filter((v) => v.province === p) })).filter((g) => g.list.length);
 
   return {
     name: 'videos', tab: 'videos', title: '视频',
     html: `<div class="wrap page-pad">
       <h1 class="h1">视频</h1>
-      <p class="muted sec-sub">这个指南依据的 ${D.videos.length} 期，按时间倒序。2021–2023 年拍的，价格可能已经变了。</p>
+      <p class="muted sec-sub">这个指南依据的 ${D.videos.length} 期，按时间倒序。${years[0]}–${years[years.length - 1]} 年陆续拍的，越早的价格越可能变了。</p>
       <div class="chips" role="group" aria-label="省份" data-chips="p">
         ${['all', ...provs].map((p) => `<button type="button" class="chip" data-v="${p}">${p === 'all' ? '全部' : esc(provName(p))}</button>`).join('')}
       </div>
@@ -43,7 +44,7 @@ export default function videosView(params) {
           <p class="kicker"><a href="${cityHref(b.city)}">${esc(cityShort(b.city))}</a>${b.review_status ? ' · ' + esc(b.review_status) : ''}</p>
           <strong>${esc(b.title)}</strong>
           ${b.notes ? `<p class="muted fine">${esc(Array.isArray(b.notes) ? b.notes.join('；') : b.notes)}</p>` : ''}
-          <div class="link-row">${out(b.url, '去 B站看')}${(b.shops || []).map((id) => db.shop[id]).filter(Boolean).slice(0, 6).map((s) => `<a href="${shopHref(s)}">${esc(s.name.replace(/（.*$/, ''))}</a>`).join('')}</div>
+          <div class="link-row">${out(b.url, '去 B站看')}${(b.shops || []).map((id) => db.shop[id]).filter(Boolean).slice(0, 6).map((s) => `<a href="${shopHref(s)}">${esc(s.name)}</a>`).join('')}</div>
         </li>`).join('');
         setParams({ p: st.p === 'all' ? '' : st.p });
       };

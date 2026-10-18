@@ -25,7 +25,7 @@ export default function citiesView() {
         <div class="tile-grid">${list.map(cityTile).join('')}</div>
       </section>`).join('')}
       ${others.length ? `<section class="block"><h2 class="h2">零散的地方</h2><div class="tile-grid">${others.map(cityTile).join('')}</div></section>` : ''}
-      <p class="note-box">重庆、四川、西藏还没逐期整理，没有评分。<a href="#/videos">在视频页看这 ${db.D.pending.length} 期清单 →</a></p>
+      <p class="note-box">重庆、四川、西藏还没逐期整理，没有评分。<a href="#/videos">在视频页看还没整理的 ${db.D.pending.length} 期清单 →</a></p>
     </div>`
   };
 }

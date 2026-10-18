@@ -89,7 +89,12 @@ export const out = (url, label, cls = '') => (safeURL(url) ? `<a class="${cls}" 
 export const dots = (n, max = 5) => `<span class="dots" aria-hidden="true">${'<i class="on"></i>'.repeat(n)}${'<i></i>'.repeat(Math.max(0, max - n))}</span>`;
 export const spice = (sp) => `<span class="spice" aria-label="麻 ${sp.ma}/5，辣 ${sp.la}/5"><span>麻${dots(sp.ma)}</span><span>辣${dots(sp.la)}</span></span>`;
 export const price = (d) => (d.price_cny ? `¥${d.price_cny}` : d.price_cny === 0 ? '免费' : '');
-export const priceFull = (d) => (d.price_cny ? `<b>¥${d.price_cny}</b>${d.price_note_zh ? ` <small>${esc(d.price_note_zh)}</small>` : ''} <small class="muted">约 ${cad(d.price_cny)}</small>` : '<small class="muted">视频里没说价格</small>');
+export const priceFull = (d) => {
+  const note = d.price_note_zh ? ` <small>${esc(d.price_note_zh)}</small>` : '';
+  if (d.price_cny) return `<b>¥${d.price_cny}</b>${note} <small class="muted">约 ${cad(d.price_cny)}</small>`;
+  if (d.price_cny === 0) return `<b>免费</b>${note}`;
+  return note ? `<b>价格</b>${note}` : '<small class="muted">视频里没说价格</small>';
+};
 export const mark = (k) => `<i class="mark" data-status="${k}" aria-hidden="true"></i>`;
 export const legend = () => Object.entries(STATUS).map(([k, v]) => `<span class="legend-item">${mark(k)}${v.label.replace('，待复核', '')}</span>`).join('');
 export const shopHref = (s) => '#/shop/' + encodeURIComponent(s.id);

@@ -16,7 +16,7 @@ export function shopRow(s) {
 
 export default function shopsView(params) {
   const st = {
-    p: params.get('p') || 'all', city: params.get('city') || 'all', status: STATUS[params.get('st')] ? params.get('st') : 'all', q: params.get('q') || ''
+    p: params.get('p') || 'all', city: params.get('city') || 'all', status: Object.hasOwn(STATUS, params.get('st') || '') ? params.get('st') : 'all', q: params.get('q') || ''
   };
   if (st.city !== 'all' && db.city[st.city]) st.p = db.city[st.city].province;
   const provs = PROV_ORDER.filter((p) => shops().some((s) => s.province === p));
@@ -65,7 +65,7 @@ export default function shopsView(params) {
         const list = sortShops(inProv.filter((s) => (st.city === 'all' || s.city === st.city) &&
           (st.status === 'all' || statusKey(s) === st.status) && (!needle || shopText(s).includes(needle))));
         const where = st.city !== 'all' ? cityShort(st.city) : st.p !== 'all' ? provName(st.p) : '全部';
-        root.querySelector('[data-count]').textContent = `${where} ${list.length} 家${st.status !== 'all' ? ' · ' + STATUS[st.status].short : ''}${needle ? ` · 含“${st.q.trim()}”` : ''} · 地址核得越实排越前`;
+        root.querySelector('[data-count]').textContent = `${where} ${list.length} 家${st.status !== 'all' ? ' · ' + STATUS[st.status].short : ''}${needle ? ` · 含“${st.q.trim()}”` : ''} · 同城内地址核得越实排越前`;
         root.querySelector('[data-list]').innerHTML = list.length ? list.map(shopRow).join('')
           : `<li class="empty"><p>没有符合条件的店。</p><button type="button" class="btn" data-reset>清除筛选</button></li>`;
         root.querySelector('[data-map-link]').setAttribute('href', '#/map' + (st.city !== 'all' ? '?city=' + st.city : st.p !== 'all' ? '?p=' + st.p : ''));

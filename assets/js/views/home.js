@@ -70,7 +70,7 @@ export default function home() {
     <section class="wrap band">
       <div class="sec-head"><h2 class="h2">云南也收了</h2><a href="#/shops?p=yunnan">云南 ${count('yunnan')} 家店 →</a></div>
       <div class="pill-row">${yn.map((c) => `<a class="pill pill-yn" href="${cityHref(c.id)}">${esc(cityShort(c.id))} <b>${(db.shopsByCity[c.id] || []).length}</b></a>`).join('')}</div>
-      <p class="muted fine">重庆、四川、西藏的 ${D.pending.length} 期还没整理，<a href="#/videos">在视频页看清单</a>。</p>
+      <p class="muted fine">重庆、四川、西藏的 ${D.pending.filter((v) => ['chongqing', 'sichuan', 'tibet'].includes(v.province)).length} 期还没整理，<a href="#/videos">在视频页看清单</a>。</p>
     </section>
 
     <section class="wrap band">

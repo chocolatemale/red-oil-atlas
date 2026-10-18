@@ -19,7 +19,7 @@ export default function tipsView() {
       <nav class="pill-row jump-row" aria-label="跳到城市">${cities.map((c) => `<a class="pill" href="#tips-${esc(c.id)}" data-jump-to="tips-${esc(c.id)}">${esc(cityShort(c.id))}</a>`).join('')}</nav>
       ${cities.map((c) => `<section class="block" id="tips-${esc(c.id)}">
         <div class="sec-head"><h2 class="h2">${esc(cityShort(c.id))}</h2><a href="${cityHref(c.id)}">${dishCount(c.id)} 道菜 · 城市页 →</a></div>
-        <ul class="tip-list">${c.tips.map((t) => `<li><p>${esc(t.zh)}</p>${t.video ? `<button type="button" class="link-btn" data-play="${esc(t.video)}" data-t="${t.t}" data-quote="${esc(t.zh)}">▶ 看这一段 ${mmss(t.t)}</button>` : ''}</li>`).join('')}</ul>
+        <ul class="tip-list">${c.tips.map((t) => `<li><p>${esc(t.zh)}</p>${t.video ? `<button type="button" class="link-btn" data-play="${esc(t.video)}" data-t="${t.t}">▶ 看这一段 ${mmss(t.t)}</button>` : ''}</li>`).join('')}</ul>
       </section>`).join('')}
       ${(D.non_public_food || []).length ? `<section class="block"><h2 class="h2">这些不是餐馆</h2>
         <p class="muted sec-sub">视频里吃到了，但不是对外营业的地方，所以不给导航。</p>
