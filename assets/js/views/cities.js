@@ -6,7 +6,7 @@ export function cityTile(c) {
     ${seal(c.id)}
     <span class="city-tile-text">
       <strong>${esc(cityShort(c.id))}<span class="muted"> · ${esc(c.vibe_tags?.[0]?.zh || '')}</span></strong>
-      <span class="muted">${n ? n + ' 家店 · ' : ''}${dishCount(c.id)} 道菜${c.typical_meal_cny ? ` · 一顿约 ¥${c.typical_meal_cny}` : ''}</span>
+      <span class="muted">${n ? n + ' 处店摊 · ' : ''}${dishCount(c.id)} 道菜${c.typical_meal_cny ? ` · 一顿约 ¥${c.typical_meal_cny}` : ''}</span>
       <span class="heat-line">辣 ${dots(c.spice?.la || 0)}</span>
     </span>
   </a>`;

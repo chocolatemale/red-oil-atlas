@@ -140,7 +140,7 @@ export default function mapView(params) {
                 if (!n) continue;
                 const m = L.marker(ll(c.lat, c.lon), {
                   icon: L.divIcon({ className: 'pin-wrap', html: `<span class="pin" data-prov="${c.province}" data-side="${LEFT.has(c.id) ? 'l' : 'r'}"><b>${n}</b><span class="pin-name">${esc(cityShort(c.id))}</span></span>`, iconSize: null, iconAnchor: [0, 0] }),
-                  title: `${cityName(c.id)}，${n} 家店`, keyboard: true, riseOnHover: true
+                  title: `${cityName(c.id)}，${n} 处店摊`, keyboard: true, riseOnHover: true
                 }).addTo(layer);
                 m.on('click', () => { st.city = c.id; st.shop = ''; panel.classList.add('open'); draw(); });
                 pins[c.id] = m;

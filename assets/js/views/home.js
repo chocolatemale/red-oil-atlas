@@ -22,7 +22,7 @@ export default function home() {
     return `<a class="city-card" href="${cityHref(c.id)}">
       ${seal(c.id)}
       <strong>${esc(c.vibe_tags?.[0]?.zh || cityShort(c.id))}</strong>
-      <span class="muted">${n} 家店 · ${dishCount(c.id)} 道菜</span>
+      <span class="muted">${n} 处店摊 · ${dishCount(c.id)} 道菜</span>
       <span class="heat-line">辣 ${dots(c.spice?.la || 0)}</span>
     </a>`;
   };
@@ -31,7 +31,7 @@ export default function home() {
     name: 'home', tab: 'home', title: '',
     html: `<section class="hero wrap">
       <div class="hero-copy">
-        <p class="eyebrow">贵州优先 · ${D.videos.length} 期视频 · ${all.length} 家店</p>
+        <p class="eyebrow">贵州优先 · ${D.videos.length} 期视频 · ${all.length} 处店摊</p>
         <h1 class="display">西南，一碗一碗<br>吃过去。</h1>
         <p class="lede">跟着<a href="${esc(safeURL(D.channel.url))}" target="_blank" rel="noopener noreferrer">盗月社</a>找店。先看主播吃了什么、说了什么，再把地址带走：一键复制，一键打开高德。</p>
         <form class="search-box" role="search" data-home-search>
@@ -42,7 +42,7 @@ export default function home() {
         </form>
       </div>
       <nav class="entries" aria-label="从这里开始">
-        <a class="entry" href="#/shops">${icon.shop}<strong>找店铺</strong><span>${all.length} 家，按城市筛</span></a>
+        <a class="entry" href="#/shops">${icon.shop}<strong>找店铺</strong><span>${all.length} 处店摊，按城市筛</span></a>
         <a class="entry" href="#/map">${icon.map}<strong>地图</strong><span>看哪些店挨得近</span></a>
         <a class="entry" href="#/menu">${icon.bowl}<strong>菜单</strong><span>${D.dishes.length} 道，按辣度挑</span></a>
         <a class="entry" href="#/cities">${icon.city}<strong>城市</strong><span>${realCities().length} 个地方的总评</span></a>
@@ -51,7 +51,7 @@ export default function home() {
 
     <section class="band">
       <div class="wrap">
-        <div class="sec-head"><h2 class="h2">先去贵州</h2><a href="#/shops?p=guizhou">贵州 ${count('guizhou')} 家店 →</a></div>
+        <div class="sec-head"><h2 class="h2">先去贵州</h2><a href="#/shops?p=guizhou">贵州 ${count('guizhou')} 处店摊 →</a></div>
       </div>
       <div class="rail wrap-rail">${gz.map(cityCard).join('')}</div>
     </section>
@@ -68,7 +68,7 @@ export default function home() {
     </section>
 
     <section class="wrap band">
-      <div class="sec-head"><h2 class="h2">云南也收了</h2><a href="#/shops?p=yunnan">云南 ${count('yunnan')} 家店 →</a></div>
+      <div class="sec-head"><h2 class="h2">云南也收了</h2><a href="#/shops?p=yunnan">云南 ${count('yunnan')} 处店摊 →</a></div>
       <div class="pill-row">${yn.map((c) => `<a class="pill pill-yn" href="${cityHref(c.id)}">${esc(cityShort(c.id))} <b>${(db.shopsByCity[c.id] || []).length}</b></a>`).join('')}</div>
       <p class="muted fine">重庆、四川、西藏的 ${D.pending.filter((v) => ['chongqing', 'sichuan', 'tibet'].includes(v.province)).length} 期还没整理，<a href="#/videos">在视频页看清单</a>。</p>
     </section>

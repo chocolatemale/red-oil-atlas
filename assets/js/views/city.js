@@ -25,7 +25,7 @@ export default function cityView(params, rawId) {
       </header>
       <p class="verdict-lg">${esc(c.verdict_zh)}</p>
       <dl class="stats">
-        <div><dt>家店</dt><dd>${shops.length}</dd></div>
+        <div><dt>处店摊</dt><dd>${shops.length}</dd></div>
         <div><dt>道已评菜</dt><dd>${must.length + dishes.length}</dd></div>
         <div><dt>一顿约</dt><dd>${c.typical_meal_cny ? '¥' + c.typical_meal_cny : '—'}</dd></div>
         <div><dt>辣度</dt><dd class="hot">${c.spice?.la ?? 0}/5</dd></div>
