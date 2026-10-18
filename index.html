@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Red Oil Atlas · 红油地图</title>
+<meta name="description" content="Where to eat in Southwest China, distilled from the travel-food videos of 盗月社 DaoYueShe. Every quote and dish links back to the second it was filmed.">
+<meta property="og:title" content="Red Oil Atlas · 红油地图">
+<meta property="og:description" content="A food field guide to Yunnan and Guizhou, built from DaoYueShe's videos. Tap any quote to watch the original moment.">
+<meta property="og:image" content="https://i.ytimg.com/vi/pGrNXPXiTxg/maxresdefault.jpg">
+<meta name="theme-color" content="#1c1410">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;family=Gloock&amp;family=Noto+Serif+SC:wght@600;900&amp;display=swap">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23d9542f'/%3E%3Cpath d='M18 26h28M18 38h28M26 18v28M38 18v28' stroke='%23fbe7c8' stroke-width='3'/%3E%3C/svg%3E">
+</head>
+<body>
+<a class="skip" href="#cities">Skip to cities</a>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="#top" aria-label="Red Oil Atlas, back to top"><span class="brand-zh">红油地图</span><span class="brand-en">Red Oil Atlas</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#map" data-i18n="nav.map">Map</a>
+      <a href="#cities" data-i18n="nav.cities">Cities</a>
+      <a href="#menu" data-i18n="nav.menu">Menu</a>
+      <a href="#videos" data-i18n="nav.videos">Episodes</a>
+      <a href="#notes" data-i18n="nav.notes">Field notes</a>
+    </nav>
+    <div class="seg" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="both">EN+中</button>
+      <button type="button" data-lang="zh">中文</button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" aria-labelledby="hero-title" data-screen-label="Hero">
+    <div class="hero-photos" id="hero-photos" aria-hidden="true"></div>
+    <div class="hero-shade" aria-hidden="true"></div>
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow" data-i18n="hero.eyebrow">A food field guide to Southwest China</p>
+        <h1 id="hero-title">
+          <span class="h1-en" data-i18n="hero.title">Southwest China, one bowl at a time.</span>
+          <span class="h1-zh">西南，一碗一碗吃过去。</span>
+        </h1>
+        <p class="lede" data-i18n-html="hero.lede"></p>
+        <dl class="stats" id="stats"></dl>
+      </div>
+      <figure class="pot-fig">
+        <svg id="pot" class="pot" viewBox="0 0 400 400" role="img" aria-labelledby="pot-title"><title id="pot-title">A nine-grid hot pot. Each cell is a city; select one to jump to it.</title></svg>
+        <figcaption data-i18n="hero.pot"></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="map" class="band" aria-labelledby="map-title" data-screen-label="Map">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="eyebrow" data-i18n="map.eyebrow">Where they ate</p>
+        <h2 id="map-title" data-i18n="map.title">The map</h2>
+        <p class="sec-sub" data-i18n="map.sub"></p>
+      </header>
+      <div class="map-grid">
+        <div class="map-box"><svg id="map-svg" role="img" aria-label="Map of Southwest China with the places DaoYueShe visited"></svg></div>
+        <aside class="map-card" id="map-card" aria-live="polite"></aside>
+      </div>
+      <ul class="legend" id="legend"></ul>
+    </div>
+  </section>
+
+  <section id="cities" aria-labelledby="cities-title" data-screen-label="Cities">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="eyebrow" data-i18n="cities.eyebrow">City by city</p>
+        <h2 id="cities-title" data-i18n="cities.title">What they thought of each place</h2>
+      </header>
+      <nav class="city-index" id="city-index" aria-label="Jump to a city"></nav>
+    </div>
+    <div id="city-list"></div>
+  </section>
+
+  <section id="menu" class="band" aria-labelledby="menu-title" data-screen-label="Menu">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="eyebrow" data-i18n="menu.eyebrow">Every dish, one menu</p>
+        <h2 id="menu-title" data-i18n="menu.title">The menu</h2>
+        <p class="sec-sub" data-i18n="menu.sub"></p>
+      </header>
+      <form class="filters" id="filters" autocomplete="off">
+        <label class="search" for="q"><span class="sr" data-i18n="menu.search">Search dishes</span></label>
+        <input type="search" id="q" placeholder="Search: noodles, 火锅, Kunming…">
+        <div class="chips" id="f-province" role="group" aria-label="Province"></div>
+        <div class="chips" id="f-cat" role="group" aria-label="Dish type"></div>
+        <div class="row-ctl">
+          <label class="heat" for="f-heat"><span data-i18n="menu.heat">Max heat</span></label>
+          <input type="range" id="f-heat" min="0" max="5" step="1" value="5">
+          <output id="f-heat-out" for="f-heat">5</output>
+          <label class="sort" for="f-sort"><span data-i18n="menu.sort">Sort</span></label>
+          <select id="f-sort">
+            <option value="score" data-i18n="menu.sort.score">Most loved</option>
+            <option value="price" data-i18n="menu.sort.price">Cheapest</option>
+            <option value="heat" data-i18n="menu.sort.heat">Spiciest</option>
+            <option value="city" data-i18n="menu.sort.city">By city</option>
+          </select>
+          <p class="count" id="menu-count" aria-live="polite"></p>
+        </div>
+      </form>
+      <ol class="menu" id="menu-list"></ol>
+    </div>
+  </section>
+
+  <section id="videos" aria-labelledby="videos-title" data-screen-label="Episodes">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="eyebrow" data-i18n="videos.eyebrow">Source material</p>
+        <h2 id="videos-title" data-i18n="videos.title">The episodes</h2>
+        <p class="sec-sub" data-i18n="videos.sub"></p>
+      </header>
+      <div class="chips" id="v-province" role="group" aria-label="Filter episodes by province"></div>
+      <ul class="vgrid" id="video-grid"></ul>
+      <div class="pending">
+        <h3 data-i18n="pending.title">Still to watch: Chongqing, Sichuan &amp; Tibet</h3>
+        <p class="sec-sub" data-i18n="pending.sub"></p>
+        <ul class="plist" id="pending-list"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="notes" class="band" aria-labelledby="notes-title" data-screen-label="Field notes">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="eyebrow" data-i18n="notes.eyebrow">Before you go</p>
+        <h2 id="notes-title" data-i18n="notes.title">Field notes</h2>
+        <p class="sec-sub" data-i18n="notes.sub"></p>
+      </header>
+      <aside class="scale-key">
+        <h3 data-i18n="key.title">How to read the heat</h3>
+        <p data-i18n-html="key.body"></p>
+        <p class="fx" id="fx-note"></p>
+      </aside>
+      <div class="notes" id="notes-list"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p data-i18n-html="foot.credit"></p>
+    <p data-i18n-html="foot.method"></p>
+    <p class="muted" id="foot-gen"></p>
+  </div>
+</footer>
+
+<dialog id="player" class="player" aria-labelledby="pl-title">
+  <div class="pl-frame"><div id="pl-embed"></div></div>
+  <div class="pl-side">
+    <button type="button" class="x-btn" id="pl-close" aria-label="Close player">×</button>
+    <p class="eyebrow" id="pl-where"></p>
+    <h3 id="pl-title"></h3>
+    <blockquote class="pl-quote" id="pl-quote"></blockquote>
+    <p class="pl-meta" id="pl-meta"></p>
+    <a class="pl-yt" id="pl-yt" target="_blank" rel="noopener" data-i18n="pl.yt">Open on YouTube ↗</a>
+  </div>
+</dialog>
+
+<dialog id="dish" class="dish-dlg" aria-labelledby="dd-title"><div id="dish-body"></div></dialog>
+
+<script src="assets/app.js" defer=""></script>
+</body>
+</html>
