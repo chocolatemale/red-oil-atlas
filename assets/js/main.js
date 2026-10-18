@@ -1,5 +1,5 @@
 /* Red Oil Atlas · 红油地图 — hash router and app shell. */
-import { $, $$, esc, load, session } from './core.js';
+import { $, $$, esc, db, load, session } from './core.js';
 import { nav, current, goto } from './nav.js';
 import { initSheet, openDish, openPlayer, closeSheet } from './ui.js';
 import home from './views/home.js';
@@ -31,6 +31,7 @@ function legacy(h) {
 let lastIdx = 0, cleanup = null, saving = true;
 
 function render() {
+  if (!db.D) return; // data still loading, or failed (the error page stays up)
   const { path, params, key } = current();
   const fixed = legacy(location.hash.replace(/^#/, ''));
   if (fixed != null) { history.replaceState(history.state, '', '#' + fixed); return render(); }
@@ -48,7 +49,9 @@ function render() {
   cleanup?.(); cleanup = null;
   saving = false;
   const out = view(params, ...match.slice(1));
-  const root = $('#view');
+  // a fresh <main> each time, so listeners a view put on its root leave with it
+  const old = $('#view'), root = old.cloneNode(false);
+  old.replaceWith(root);
   root.innerHTML = out.html;
   root.dataset.view = out.name || '';
   document.body.dataset.view = out.name || '';
@@ -66,7 +69,7 @@ function render() {
   requestAnimationFrame(() => {
     window.scrollTo(0, y);
     saving = true;
-    if (fromClick) root.focus({ preventScroll: true });
+    if (fromClick && !root.contains(document.activeElement)) root.focus({ preventScroll: true });
   });
 }
 
@@ -74,6 +77,15 @@ function wire() {
   history.scrollRestoration = 'manual';
   document.addEventListener('click', (e) => {
     if (e.defaultPrevented || e.button > 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    // in-page anchors (the skip link, #watch…) scroll instead of going through the router
+    const anchor = e.target.closest('a[href^="#"]:not([href^="#/"])');
+    const target = anchor && document.getElementById(anchor.getAttribute('href').slice(1));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      if (target.tabIndex >= 0 || target.hasAttribute('tabindex')) target.focus({ preventScroll: true });
+      return;
+    }
     const back = e.target.closest('[data-back]');
     if (back && (history.state?.idx || 0) > 0) { e.preventDefault(); history.back(); return; }
     const a = e.target.closest('a[href^="#/"]');
@@ -115,7 +127,9 @@ async function boot() {
     await load();
   } catch (err) {
     console.error(err);
-    $('#view').innerHTML = `<div class="wrap pad"><h1 class="h1">数据没有加载出来</h1><p>${esc(err.message)}。请刷新页面再试一次。</p></div>`;
+    $('#view').innerHTML = `<div class="wrap page-pad"><h1 class="h1">数据没有加载出来</h1>
+      <p>${navigator.onLine === false ? '手机现在没有网络。' : '网络没把数据传过来。'}请检查网络，再点下面的按钮重试。</p>
+      <p><button type="button" class="btn btn-primary" onclick="location.reload()">重新加载</button></p></div>`;
     return;
   }
   render();

@@ -79,8 +79,10 @@ export default function shopsView(params) {
         if (e.target.closest('[data-reset]')) { st.p = 'all'; st.city = 'all'; st.status = 'all'; st.q = ''; q.value = ''; draw(); }
       });
       root.querySelector('[data-select="st"]').addEventListener('change', (e) => { st.status = e.target.value; draw(); });
-      q.addEventListener('input', debounce(() => { st.q = q.value; draw(); }, 180));
+      const typed = debounce(() => { st.q = q.value; draw(); }, 180);
+      q.addEventListener('input', typed);
       draw();
+      return () => typed.cancel();
     }
   };
 }

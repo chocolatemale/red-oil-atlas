@@ -30,13 +30,15 @@ export default function searchView(params) {
           (ds.length ? `<section class="block"><h2 class="h3">菜 · ${ds.length}</h2><ul class="plain-list">${ds.slice(0, 20).map((d) => `<li><button type="button" class="link-btn" data-dish="${esc(d.id)}">${esc(d.zh)}</button> <span class="muted">${esc(cityShort(d.city))}${price(d) ? ' · ' + price(d) : ''}</span></li>`).join('')}</ul></section>` : '') ||
           `<p class="muted">没有找到“${esc(st.q.trim())}”。换个说法，比如只写菜名的一部分。</p>`;
       };
-      input.addEventListener('input', debounce(() => { st.q = input.value; draw(); }, 150));
+      const typed = debounce(() => { st.q = input.value; draw(); }, 150);
+      input.addEventListener('input', typed);
       root.addEventListener('click', (e) => {
         const t = e.target.closest('[data-try]');
         if (t) { input.value = st.q = t.dataset.try; draw(); }
       });
       draw();
       if (!st.q) input.focus();
+      return () => typed.cancel();
     }
   };
 }

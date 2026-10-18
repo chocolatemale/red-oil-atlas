@@ -3,7 +3,7 @@
 import { $, db, esc, mmss, CATS, cityName, priceFull, spice, dots, shopHref, out, yt } from './core.js';
 import { icon } from './icons.js';
 
-let pendingNav = null;
+let pendingNav = null, openedAt = 0;
 const sheet = () => $('#sheet');
 
 export function openSheet(html, label, cls = '') {
@@ -13,7 +13,10 @@ export function openSheet(html, label, cls = '') {
   dlg.setAttribute('aria-label', label);
   if (!dlg.open) {
     dlg.showModal();
-    history.pushState({ ...(history.state || {}), sheet: true }, '');
+    openedAt = performance.now();
+    // reuse a leftover sheet entry (forward swipe) rather than stacking another one
+    if (history.state?.sheet) history.replaceState(history.state, '');
+    else history.pushState({ ...(history.state || {}), sheet: true }, '');
   }
   $('#sheet-body').scrollTop = 0;
 }
@@ -28,9 +31,14 @@ export function closeSheet(fromHistory = false) {
 
 export function initSheet(onNavigate) {
   const dlg = sheet();
+  // A sheet entry with no sheet showing (after a reload, or a forward swipe) is just the page.
+  const unstale = () => { if (!dlg.open && history.state?.sheet) history.replaceState({ ...history.state, sheet: false }, ''); };
+  unstale();
   dlg.addEventListener('cancel', (e) => { e.preventDefault(); closeSheet(); });
   dlg.addEventListener('click', (e) => {
-    if (e.target === dlg || e.target.closest('[data-close-sheet]')) { closeSheet(); return; }
+    if (e.target.closest('[data-close-sheet]')) { closeSheet(); return; }
+    // the second tap of a double tap lands on the backdrop; don't let it close what the first opened
+    if (e.target === dlg) { if (performance.now() - openedAt > 350) closeSheet(); return; }
     const a = e.target.closest('a[href^="#/"]');
     if (a) { // leave the sheet's history entry before navigating
       e.preventDefault();
@@ -41,6 +49,7 @@ export function initSheet(onNavigate) {
   });
   window.addEventListener('popstate', () => {
     if (dlg.open && !history.state?.sheet) closeSheet(true);
+    unstale();
     if (pendingNav && !history.state?.sheet) { const to = pendingNav; pendingNav = null; onNavigate(to); }
   });
 }

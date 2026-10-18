@@ -1,4 +1,6 @@
 /* Navigation state shared by the router and the views. */
+import { session } from './core.js';
+
 export const nav = { click: false, lastKey: '' };
 
 export function current() {
@@ -18,8 +20,15 @@ export function setParams(obj) {
   }
   const qs = params.toString();
   const url = '#' + path + (qs ? '?' + qs : '');
-  if (url !== location.hash) history.replaceState(history.state, '', url);
+  if (history.state?.sheet) return; // a late update must not rewrite the sheet's history entry
+  if (url !== location.hash) {
+    history.replaceState(history.state, '', url);
+    session.set('y:' + url, String(Math.round(scrollY))); // back to this filter returns here, even without scrolling
+  }
   nav.lastKey = url;
 }
 
-export function goto(hash) { nav.click = true; location.hash = hash; }
+export function goto(hash) {
+  if (hash === location.hash) return; // same page: no hashchange would follow to clear the click flag
+  nav.click = true; location.hash = hash;
+}

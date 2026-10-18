@@ -118,7 +118,10 @@ export const session = {
 };
 
 export function debounce(fn, ms = 200) {
-  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+  let t;
+  const d = (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+  d.cancel = () => clearTimeout(t);
+  return d;
 }
 
 /* Full-text match over a shop's useful fields. */

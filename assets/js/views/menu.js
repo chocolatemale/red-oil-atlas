@@ -80,9 +80,11 @@ export default function menuView(params) {
         const w = e.target.closest('[data-chips="where"] button');
         if (w) { st.city = w.dataset.city || ''; st.p = w.dataset.p || (st.city ? db.city[st.city].province : 'all'); draw(); }
       });
-      q.addEventListener('input', debounce(() => { st.q = q.value; draw(); }, 180));
+      const typed = debounce(() => { st.q = q.value; draw(); }, 180);
+      q.addEventListener('input', typed);
       heat.addEventListener('input', () => { st.heat = Number(heat.value); draw(); });
       draw();
+      return () => typed.cancel();
     }
   };
 }
