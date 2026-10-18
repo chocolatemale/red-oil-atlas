@@ -1,7 +1,15 @@
-# Red Oil Atlas · 红油地图
+# 红油地图
 
-An unofficial, fan-made food field guide to Southwest China (Yunnan and Guizhou so far), built from the travel-food videos of [盗月社 DaoYueShe](https://www.youtube.com/@DaoYueShe). Every dish and quote links back to the moment it was filmed; videos and images load from YouTube.
+跟着盗月社找西南美食的非官方旅行指南。全中文，贵州与遵义优先；保留云南内容。
 
-All footage, quotes and frames belong to DaoYueShe.
+[打开网站](https://chocolatemale.github.io/red-oil-atlas/)
 
-Live: https://chocolatemale.github.io/red-oil-atlas/
+每个店铺或摊位档案都有可分享的 `#shop/<id>` 详情链接，包含菜品、原视频、地址线索、地图或点评入口、评论摘要及来源。目录可按省份、城市、关键词、核实程度筛选。
+
+2026-10-18 版本收录75条店铺或摊位档案：贵州44、云南31。档案包含具名店铺、未指认摊位及待区分经营者的小吃线索组，不等于75家已核实的独立门店。16条地址有交叉资料，26条来自评论，33条仍待锁定。32期原有视频保留87道已评菜品，另补未评级的原片/评论菜单线索；34条B站资料含对应视频与公益专题。
+
+核实状态逐店标明。同名分店、观众另荐和转载不能自动当作拍摄店；未确认的具体点位不画精确落点。多数高德入口是关键词查找，6处公开坐标只展示附近范围，不当道路入口定位。未核实的点评链接不编造；可确认的6家优先给具体点评商户页。
+
+价格、口味与历史评论都反映拍摄/留言当时的情况，不承诺当前营业。公共店铺与学校、家访、蜂农、露营等非对外餐饮场景分开处理。
+
+画面和原话归[盗月社](https://www.youtube.com/@DaoYueShe)所有。原始音频、完整转录及研究评论样本保留在本地，不在此公开仓库。

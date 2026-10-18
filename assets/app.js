@@ -4,7 +4,7 @@
   const FX = 0.19; // CAD per CNY, approximate
   // Data lives next to the page on GitHub Pages and locally; previews hosted elsewhere read the published copy.
   const DATA_BASE = /github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname) ? '' : 'https://chocolatemale.github.io/red-oil-atlas/';
-  const PROV_ORDER = ['yunnan', 'guizhou', 'sichuan', 'chongqing', 'tibet'];
+  const PROV_ORDER = ['guizhou', 'yunnan', 'sichuan', 'chongqing', 'tibet'];
   const CATS = {
     noodles: ['Noodles', '粉面'], hotpot: ['Hot pot', '火锅'], bbq: ['Barbecue', '烧烤'], skewers: ['Skewers', '串串'],
     fish: ['Fish', '鱼'], mushroom: ['Mushrooms', '菌子'], snack: ['Street snacks', '小吃'], breakfast: ['Breakfast', '早餐'],
@@ -15,7 +15,7 @@
     'hero.eyebrow': ['A food field guide to Southwest China', '中国西南美食实地指南'],
     'hero.title': ['Southwest China, one bowl at a time.', '西南，一碗一碗吃过去。'],
     'hero.lede': ['Everything here comes from the travel-food videos of <a href="https://www.youtube.com/@DaoYueShe" target="_blank" rel="noopener">盗月社 DaoYueShe</a>. We went through their Yunnan and Guizhou episodes and wrote down what they ate, what it cost and how they reacted. Tap any dish or quote to watch the original moment.',
-      '这里的一切都来自<a href="https://www.youtube.com/@DaoYueShe" target="_blank" rel="noopener">盗月社</a>的视频。我们把他们在云南、贵州拍的视频逐期过了一遍，记下吃了什么、花了多少钱、当时什么反应。点任意一道菜或一句原话，就能跳回视频里那一秒。'],
+      '跟着<a href="https://www.youtube.com/@DaoYueShe" target="_blank" rel="noopener">盗月社</a>，从贵州吃到云南。先找店，再看地址、招牌菜和评论线索；想知道主播怎么说，点开菜品就能回到视频里的那一秒。'],
     'hero.pot': ['九宫格 · The nine-grid hot pot. Each cell is a city; the deeper the red, the spicier it is.', '九宫格：每一格是一座城市，颜色越红越辣。'],
     'map.eyebrow': ['Where they ate', '吃过的地方'], 'map.title': ['The map', '地图'],
     'map.sub': ['Dot size shows how many dishes they reviewed there. Hover or tap a dot to read the verdict.', '圆点越大，在那里点评过的菜越多。点圆点看评价。'],
@@ -26,7 +26,7 @@
     'menu.sort.score': ['Most loved', '最受好评'], 'menu.sort.price': ['Cheapest', '最便宜'], 'menu.sort.heat': ['Spiciest', '最辣'], 'menu.sort.city': ['By city', '按城市'],
     'videos.eyebrow': ['Source material', '原始素材'], 'videos.title': ['The episodes', '本页用到的视频'],
     'videos.sub': ['The episodes this guide is built from, newest first. Episodes from 2021–2023 may show older prices.', '本页所依据的视频，按时间倒序。2021–2023 年的视频，价格可能已经变了。'],
-    'pending.title': ['Still to watch: Chongqing, Sichuan & Tibet', '还没整理：重庆、四川、西藏'],
+    'pending.title': ['Not yet reviewed episode by episode', '尚未逐期整理的视频'],
     'pending.sub': ['DaoYueShe has filmed much more in the Southwest. These episodes are not summarized in this guide yet, so they carry no ratings. Each one opens the original video.', '盗月社在西南拍的远不止这些。下面这些视频还没整理进本指南，所以没有评分；点开就是原视频。'],
     'notes.eyebrow': ['Before you go', '出发之前'], 'notes.title': ['Field notes', '实用贴士'],
     'notes.sub': ['Practical lessons the hosts learned on camera, so you don\'t have to.', '主播们在镜头前踩过的坑和学到的经验。'],
@@ -36,9 +36,9 @@
     'foot.credit': ['All footage, quotes and frames belong to <a href="https://www.youtube.com/@DaoYueShe" target="_blank" rel="noopener">盗月社 DaoYueShe</a>. Videos and images load from YouTube; please watch, like and subscribe there. This is an unofficial, fan-made travel guide.',
       '所有画面、原话版权归<a href="https://www.youtube.com/@DaoYueShe" target="_blank" rel="noopener">盗月社</a>所有，视频和图片直接从 YouTube 加载，欢迎去原频道点赞订阅。本页是非官方的粉丝旅行指南。'],
     'foot.method': ['How it was made: each episode was transcribed (creator subtitles where available, otherwise speech recognition) and read in full. Quotes are short and lightly corrected for recognition errors. Ratings reflect how enthusiastic the hosts were, not our own taste. Prices are as filmed, in yuan (¥).',
-      '制作方法：每期视频先转成文字（有作者字幕用字幕，否则用语音识别），再逐期读完整理。原话简短，只修正了识别错字。评分反映的是主播的喜爱程度。价格为拍摄时的人民币价格。'],
+      '制作方法：原有视频依据字幕或语音转录逐期整理；本次另读 B 站评论补店名、地址与不同观点。新增的纯评论资料不生成主播评分。评论线索、交叉资料和待核实地址逐店标明，地图搜索不等于确认店址。价格与口味以拍摄时为准，出发前请再核对。'],
     'pl.yt': ['Open on YouTube ↗', '在 YouTube 打开 ↗'],
-    'stat.videos': ['episodes', '期视频'], 'stat.dishes': ['dishes rated', '道菜'], 'stat.cities': ['places', '个地方'], 'stat.hours': ['hours watched', '小时素材'],
+    'stat.videos': ['episodes', '期视频'], 'stat.dishes': ['dishes rated', '道已评菜品'], 'stat.cities': ['places', '个地方'], 'stat.hours': ['hours watched', '小时素材'],
     'c.meal': ['Typical meal', '人均一顿'], 'c.heat': ['Heat', '辣度'], 'c.musteat': ['What to eat here', '在这里吃什么'],
     'c.said': ['In their words', '原话'], 'c.tips': ['Tips from the episodes', '视频里的提醒'], 'c.videos': ['Episodes filmed here', '在这里拍的视频'],
     'c.read': ['Read the chapter →', '去看这一章 →'], 'c.dishes': ['dishes', '道菜'], 'c.eps': ['episodes', '期'], 'c.must': ['Must eat', '必吃'],
@@ -168,7 +168,7 @@
       g.addEventListener('click', sel); g.addEventListener('mouseenter', sel);
       g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sel(); } });
     });
-    if (!state.mapSel) state.mapSel = (cityById.kunming || D.cities[0]).id;
+    if (!state.mapSel) state.mapSel = (cityById.zunyi || D.cities[0]).id;
     mapCard();
     $('#legend').innerHTML = PROV_ORDER.map((p) => `<li><i style="background:${pcol(p)}"></i>${esc(provById[p].zh)}${D.cities.some((c) => c.province === p) ? '' : ` <span class="muted">· ${ui('p.title')}</span>`}</li>`).join('');
   }
@@ -187,7 +187,7 @@
       <div class="mc-body"><p class="eyebrow" style="color:${pcol(c.province)};margin:0">${esc(name(provById[c.province]))}</p>
       <div class="mc-name"><b>${esc(c.zh)}</b></div>
       <p>${one(c, 'verdict')}</p>
-      ${top.length ? `<div class="tags">${top.map((d) => `<span class="tag">${esc(d.zh)} · ${esc(d.en)}</span>`).join('')}</div>` : ''}
+      ${top.length ? `<div class="tags">${top.map((d) => `<span class="tag">${esc(d.zh)}</span>`).join('')}</div>` : ''}
       <a class="go" href="#city-${c.id}" data-go="${c.id}">${ui('c.read')}</a></div>`;
   }
 
@@ -205,12 +205,12 @@
     return `<figure class="q"><p class="qzh">${esc(q.quote_zh)}</p>${isZh() ? '' : `<p class="qen">${esc(q.quote_en)}</p>`}
       <footer><span>${esc(isZh() ? q.speaker_zh : q.speaker_en)}</span>${playBtn(q.video, q.t, q, cityId)}</footer></figure>`;
   }
-  function dishCard(d, must) {
-    return `<button type="button" class="dcard" data-dish="${d.id}" style="--pc:${pcol(d.province)}">
+  function dishCard(d, must, currentShop = null) {
+    return `<div class="atlas-dish-wrap"><button type="button" class="dcard" data-dish="${d.id}" style="--pc:${pcol(d.province)}">
       <span class="dimg"><img src="${d.img}" alt="" loading="lazy">${must ? `<span class="rank">${ui('c.must')}</span>` : ''}${priceTag(d)}</span>
       <span class="dbody"><span class="dzh">${esc(d.zh)}</span>${isZh() ? '' : `<span class="den">${esc(d.en)}</span>`}
         <span class="dv">${one(d, 'verdict')}</span>
-        <span class="dfoot">${stars(d.score)}${heatMeter(d.spice)}</span></span></button>`;
+        <span class="dfoot">${stars(d.score)}${heatMeter(d.spice)}</span></span></button>${shops().filter(s=>s.id !== currentShop && (s.dish_ids||[]).includes(d.id)).map(s=>`<a class="atlas-dish-shop" href="${shopHref(s)}">${esc(s.name)} · 店铺详情 →</a>`).join('')}</div>`;
   }
   function videoTile(v, withSum) {
     const c = cityById[v.city];
@@ -246,6 +246,7 @@
             ${must.length + rest.length ? `<div><h4 class="subhead">${ui('c.musteat')}</h4><div class="dishes">${must.map((d) => dishCard(d, true)).join('')}${rest.map((d) => dishCard(d, false)).join('')}</div></div>` : ''}
             ${(c.impressions || []).length ? `<div><h4 class="subhead">${ui('c.said')}</h4><div class="quotes">${c.impressions.map((q) => quoteHTML(q, c.id)).join('')}</div></div>` : ''}
             ${(c.tips || []).length ? `<div><h4 class="subhead">${ui('c.tips')}</h4><ul class="tips">${c.tips.map((t) => `<li><span>${esc(isZh() ? t.zh : t.en)}${state.lang === 'both' ? `<span class="tzh">${esc(t.zh)}</span>` : ''}</span>${playBtn(t.video, t.t, { quote_zh: t.zh, quote_en: t.en }, c.id)}</li>`).join('')}</ul></div>` : ''}
+            ${shopLinksForCity(c.id)}
             ${vids.length ? `<div><h4 class="subhead">${ui('c.videos')}</h4><div class="vstrip">${vids.map((v) => videoTile(v, false)).join('')}</div></div>` : ''}
           </div></div></article>`;
       });
@@ -289,6 +290,9 @@
   function renderVideos() {
     const vs = D.videos.filter((v) => state.vprov === 'all' || v.province === state.vprov).sort((a, b) => (b.upload_date || '').localeCompare(a.upload_date || ''));
     $('#video-grid').innerHTML = vs.map((v) => `<li>${videoTile(v, true)}</li>`).join('');
+    const bili = (D.bilibili || []).filter(v => state.vprov === 'all' || provinceKey(v.province) === state.vprov);
+    $('#bili-grid').innerHTML = bili.length ? `<h3>哔哩哔哩补充资料</h3><p class="muted">按已查到的资料补充，不代表已经完成逐句视频整理。</p><div class="atlas-shop-grid">${bili.map(v => `<article class="atlas-panel"><p class="eyebrow">${esc(cityName(v.city))}</p><h4>${esc(v.title)}</h4><p>${esc(Array.isArray(v.notes)?v.notes.join('；'):(v.notes||''))}</p>${outLink(v.url, '在哔哩哔哩查看')}<div class="atlas-related">${(v.shops||[]).map(id=>shops().find(s=>s.id===id)).filter(Boolean).map(s=>`<a href="${shopHref(s)}">${esc(s.name)} · 店铺详情 →</a>`).join('')}</div></article>`).join('')}</div>` : '';
+
     $('#pending-list').innerHTML = (D.pending || []).map((v) => `<li><button type="button" data-v="${v.id}" data-t="0" class="pv">
       <img src="${yt(v.id, 'mqdefault')}" alt="" loading="lazy" width="112" height="63">
       <span><span class="pt">${esc(v.title_zh)}</span>${!isZh() && enTitle(v) ? `<span class="pe">${esc(enTitle(v))}</span>` : ''}<span class="pe" style="color:${pcol(v.province)}">${esc(name(provById[v.province]))}${v.duration ? ' · ' + mmss(v.duration) : ''}</span></span></button></li>`).join('');
@@ -329,6 +333,7 @@
         <div><h4 class="subhead">${ui('d.what')}</h4><p>${bi(d, 'what')}</p></div>
         <div><h4 class="subhead">${ui('d.verdict')}</h4><p>${bi(d, 'verdict')}</p></div>
         ${d.place_en ? `<p class="where"><b>${ui('d.where')}:</b> ${one(d, 'place')}</p>` : ''}
+        ${shopLinksForDish(d.id)}
         ${d.quote_zh ? `<figure class="q"><p class="qzh">${esc(d.quote_zh)}</p>${isZh() ? '' : `<p class="qen">${esc(d.quote_en)}</p>`}<footer><span>${ui('d.watch')}</span>${playBtn(d.video, d.t, d, d.city)}</footer></figure>` : ''}
       </div></div>`;
     $('#dish').showModal();
@@ -349,6 +354,8 @@
     document.addEventListener('load', coverFallback, true);
     document.addEventListener('error', coverFallback, true);
     document.addEventListener('click', (e) => {
+      // The same shop hash does not emit hashchange; dismiss a dish dialog explicitly.
+      if (e.target.closest('a[href^="#shop/"]') && $('#dish').open) $('#dish').close();
       const p = e.target.closest('[data-v]');
       if (p) { e.preventDefault(); openPlayer(p.dataset.v, +p.dataset.t, p.dataset.qz, p.dataset.qe, p.dataset.c); return; }
       const dd = e.target.closest('[data-dish]'); if (dd) { openDish(dd.dataset.dish); return; }
@@ -373,8 +380,157 @@
     $('#filters').addEventListener('submit', (e) => e.preventDefault());
   }
 
+  /* Store pages: stable hash URLs, evidence-aware positions, no inferred coordinates. */
+  const shopState = { province: 'guizhou', city: 'all', q: '', scroll: 0, status: 'all', visible: 12 };
+  const shops = () => D.shops || [];
+  const provinceKey = (v) => D.provinces.find(p => p.id === v || p.zh === v)?.id || v;
+  const cityKey = (v) => D.cities.find(c => c.id === v || c.zh === v)?.id || v;
+  const cityName = (v) => cityById[v]?.zh || v || '城市待核实';
+  const provinceName = (v) => provById[v]?.zh || v || '';
+  const safeURL = (v) => { try { const u = new URL(v); return /^https?:$/.test(u.protocol) ? esc(u.href) : ''; } catch { return ''; } };
+  const outLink = (url, label, cls = '') => safeURL(url) ? `<a class="${cls}" href="${safeURL(url)}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>` : '';
+  const shopHref = (s) => '#shop/' + encodeURIComponent(s.id);
+  const statusText = (s) => ({corroborated:'地址有交叉资料',comment_only:'地址来自评论，待复核',unresolved:'地址待核实'}[s.address_status] || '地址待核实');
+  const hasPoint = (s) => s.location && Number.isFinite(s.location.lat) && Number.isFinite(s.location.lon) && Math.abs(s.location.lat) <= 90 && Math.abs(s.location.lon) <= 180;
+  const precisionText = (s) => !hasPoint(s) ? '尚未定位' : ({poi:'店铺位置',street:'街道范围示意',area:'区域范围示意'}[s.location.precision] || '范围示意');
+  function shopLinksForDish(id) {
+    const ss = shops().filter(s => (s.dish_ids || []).includes(id));
+    if (ss.length) return `<div class="atlas-related"><h4 class="subhead">去这家店</h4>${ss.map(s => `<a href="${shopHref(s)}">${esc(s.name)} · 地址与位置 →</a>`).join('')}</div>`;
+    const context = (D.non_public_food || []).find(x => (x.dish_ids || []).includes(id));
+    return context ? `<div class="atlas-related"><h4 class="subhead">非对外餐馆场景</h4><p>${esc(context.reason)}</p></div>` : '';
+  }
+  function shopLinksForCity(id) {
+    const ss = shops().filter(s => cityKey(s.city) === id);
+    return ss.length ? `<div class="atlas-related"><h4 class="subhead">这一城的店铺</h4>${ss.map(s => `<a href="${shopHref(s)}">${esc(s.name)} <small>${statusText(s)}</small> →</a>`).join('')}</div>` : '';
+  }
+  function shopCard(s) {
+    const ds = (s.dish_ids || []).map(id => dishById[id]).filter(Boolean);
+    return `<a class="atlas-shop-card" href="${shopHref(s)}"><div class="atlas-card-top"><span>${esc(cityName(s.city))}</span><span>${precisionText(s)}</span></div><h3>${esc(s.name)}</h3><p>${esc(ds.map(d => d.zh).join(' · ') || '查看店铺资料与视频线索')}</p><div class="atlas-card-address">${esc(s.address || '具体地址仍待核实')}</div><div class="atlas-card-foot"><span>${statusText(s)}</span><b>店铺详情 →</b></div></a>`;
+  }
+  function renderShops() {
+    const ps = [...new Set(shops().map(s => provinceKey(s.province)))].sort((a,b) => PROV_ORDER.indexOf(a)-PROV_ORDER.indexOf(b));
+    const inProvince = shops().filter(s => shopState.province === 'all' || provinceKey(s.province) === shopState.province);
+    const cs = [...new Set(inProvince.map(s => cityKey(s.city)))].sort((a,b) => (a === 'zunyi' ? -1 : b === 'zunyi' ? 1 : cityName(a).localeCompare(cityName(b),'zh-CN')));
+    $('#shop-provinces').innerHTML = ['all',...ps].map(p => `<button type="button" data-shop-province="${esc(p)}" aria-pressed="${p===shopState.province}">${p==='all'?'全部省份':esc(provinceName(p))}</button>`).join('');
+    $('#shop-cities').innerHTML = ['all',...cs].map(c => `<button type="button" data-shop-city="${esc(c)}" aria-pressed="${c===shopState.city}">${c==='all'?'全部城市':esc(cityName(c))}</button>`).join('');
+    const q = shopState.q.trim().toLowerCase();
+    const candidates = inProvince.filter(s => (shopState.city === 'all' || cityKey(s.city) === shopState.city) && (!q || [s.name,s.address,cityName(s.city),...(s.menu_notes||[]),...(s.dish_ids||[]).map(id=>dishById[id]?.zh)].join(' ').toLowerCase().includes(q)));
+    const statuses = [['all','全部'],['corroborated','地址有交叉资料'],['comment_only','评论指路'],['unresolved','待核实']];
+    const statusKey = s => ['corroborated','comment_only'].includes(s.address_status) ? s.address_status : 'unresolved';
+    $('#shop-status').innerHTML = statuses.map(([key,label]) => `<button type="button" data-shop-status="${key}" aria-pressed="${shopState.status===key}">${label}<small>${key==='all'?candidates.length:candidates.filter(s=>statusKey(s)===key).length}</small></button>`).join('');
+    const reliability = {corroborated:0,comment_only:1,unresolved:2};
+    const list = candidates.filter(s => shopState.status === 'all' || statusKey(s) === shopState.status).sort((a,b) =>
+      (cityKey(a.city)==='zunyi'?-1:0)-(cityKey(b.city)==='zunyi'?-1:0) ||
+      PROV_ORDER.indexOf(provinceKey(a.province))-PROV_ORDER.indexOf(provinceKey(b.province)) ||
+      cityName(a.city).localeCompare(cityName(b.city),'zh-CN') ||
+      reliability[statusKey(a)]-reliability[statusKey(b)]);
+    const displayed = list.slice(0, shopState.visible);
+    $('#shop-count').textContent = `显示 ${displayed.length} / ${list.length} 条店铺或摊位档案 · 同城优先展示地址有交叉资料的地点`;
+    $('#shop-list').innerHTML = list.length ? displayed.map(shopCard).join('') : `<div class="atlas-empty"><h3>${shops().length?'暂时没有匹配的店铺':'店铺地址正在整理'}</h3><p>${shops().length?'试试其他核实程度、关键词或城市。':'目前可先浏览下方城市、菜品与原视频；核实后的店铺会出现在这里。'}</p><button type="button" data-shop-reset>清除筛选，查看全部档案</button></div>`;
+    $('#shop-pagination').innerHTML = displayed.length < list.length ? `<p>还有 ${list.length-displayed.length} 条符合条件的档案</p><div><button type="button" data-shop-more>再显示 ${Math.min(12,list.length-displayed.length)} 条 ↓</button><button type="button" data-shop-all>查看全部 ${list.length} 条</button></div>` : list.length ? '<p>已显示当前筛选下的全部档案</p>' : '';
+    const gz = shops().filter(s=>provinceKey(s.province)==='guizhou'), zy=gz.filter(s=>cityKey(s.city)==='zunyi');
+    $('#shop-progress').innerHTML=`<span><b>贵州 ${gz.length}</b> 条已建档</span><span><b>遵义 ${zy.length}</b> 条店铺线索</span><span><b>${shops().filter(s=>s.address_status==='corroborated').length}</b> 条地址有交叉资料</span><span>建档不等于营业确认 · 出发前再核对</span>`;
+  }
+  function streetMap(s) {
+    const loc = s.location;
+    if (!loc || !Number.isFinite(loc.wgs84_lat) || !Number.isFinite(loc.wgs84_lon) || Math.abs(loc.wgs84_lat) > 90 || Math.abs(loc.wgs84_lon) > 180) return '';
+    const lat = loc.wgs84_lat, lon = loc.wgs84_lon, exact = loc.precision === 'poi';
+    const spread = exact ? .007 : loc.precision === 'street' ? .016 : .05;
+    const dx = spread / Math.max(.2, Math.cos(lat * Math.PI / 180));
+    const params = new URLSearchParams({bbox: [Math.max(-180,lon-dx),Math.max(-90,lat-spread),Math.min(180,lon+dx),Math.min(90,lat+spread)].join(','),layer:'mapnik'});
+    if (exact) params.set('marker', `${lat},${lon}`);
+    const embed = 'https://www.openstreetmap.org/export/embed.html?' + params;
+    const full = `https://www.openstreetmap.org/${exact ? `?mlat=${lat}&mlon=${lon}` : ''}#map=${exact ? 16 : loc.precision === 'street' ? 14 : 12}/${lat}/${lon}`;
+    return `<div class="atlas-road-map"><iframe src="${esc(embed)}" title="${esc(s.name)}道路地图${exact ? '' : '，仅显示所在范围'}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div><p class="atlas-map-note">${exact ? '地图标记使用已提供的 WGS84 店铺坐标。' : '地图只显示已知街道或区域范围，不标记具体店址。'} 道路底图来自开放街道地图。${outLink(full, '打开完整地图')}</p>`;
+  }
+  function relativeMap(s) {
+    if (!hasPoint(s)) return `<div class="atlas-no-map"><span>位置待核实</span><p>这家店还没有可靠坐标，因此暂不在地图上落点。</p><p>${esc(s.address || '具体地址待补充')}</p></div>`;
+    const peers = shops().filter(x => x.id===s.id || (cityKey(x.city)===cityKey(s.city) && hasPoint(x)));
+    const cos=Math.cos(s.location.lat*Math.PI/180), xy=x=>[(x.location.lon-s.location.lon)*111.32*cos,(x.location.lat-s.location.lat)*110.57];
+    const pts=peers.map(x=>({s:x,p:xy(x)}));
+    const xs=pts.map(x=>x.p[0]), ys=pts.map(x=>x.p[1]);
+    const xmin=Math.min(-.5,...xs), xmax=Math.max(.5,...xs), ymin=Math.min(-.5,...ys), ymax=Math.max(.5,...ys);
+    const scale=Math.min(540/(xmax-xmin),290/(ymax-ymin)); const cx=(xmin+xmax)/2,cy=(ymin+ymax)/2;
+    const dot=(p)=>[330+(p[0]-cx)*scale,205-(p[1]-cy)*scale];
+    const marks=pts.map(({s:x,p},i)=>{const [a,b]=dot(p),exact=x.location.precision==='poi',sel=x.id===s.id;return `<a href="${shopHref(x)}" aria-label="${esc(x.name)}，${precisionText(x)}"><circle cx="${a}" cy="${b}" r="${exact?14:30}" class="${exact?'atlas-pin':'atlas-area'} ${sel?'selected':''}"></circle><text x="${a}" y="${b+5}" text-anchor="middle">${i+1}</text></a>`}).join('');
+    const bar=Math.pow(10,Math.floor(Math.log10(120/scale))),length=bar*scale;
+    return `<div class="atlas-position-map"><svg viewBox="0 0 660 410" role="img" aria-label="${esc(cityName(s.city))}店铺相对位置示意，北向上"><defs><pattern id="shop-grid" width="44" height="41" patternUnits="userSpaceOnUse"><path d="M44 0H0V41" fill="none" stroke="currentColor" stroke-opacity=".08"/></pattern></defs><rect width="660" height="410" fill="url(#shop-grid)"/><text x="25" y="32" class="atlas-map-caption">${esc(cityName(s.city))} · 相对位置示意</text><text x="615" y="32">北 ↑</text>${marks}<path d="M25 365v7h${length}v-7" class="atlas-scale"/><text x="25" y="395" class="atlas-map-caption">${bar>=1?bar+' 公里':Math.round(bar*1000)+' 米'}</text></svg></div><p class="atlas-map-note">实心编号表示店铺点位，虚线大圈表示街道或区域范围。此图用于比较方位与直线距离，不是道路导航。</p><ol class="atlas-map-key">${pts.map(({s:x},i)=>`<li><a href="${shopHref(x)}"><b>${i+1}</b>${esc(x.name)}</a><span>${precisionText(x)}</span></li>`).join('')}</ol>${s.location.note?`<p class="muted">位置说明：${esc(s.location.note)}</p>`:''}`;
+  }
+  function renderShopPage(s) {
+    const ds = (s.dish_ids || []).map(id => dishById[id]).filter(Boolean);
+    const bs = (D.bilibili || []).filter(v => (s.bvids || []).includes(v.bvid) || (v.shops || []).includes(s.id));
+    const bvIds = [...new Set([...(s.bvids || []), ...bs.map(v => v.bvid)])];
+    const video = (s.videos || []).map(id => byId[id]).find(Boolean);
+    const leadDish = ds.find(d => d.img), leadImg = leadDish?.img || (video ? yt(video.id, 'hqdefault') : null);
+    const map = streetMap(s);
+    const navigation = outLink(s.map_url, s.map_scope === 'region' ? '高德看所在区域' : '高德查店铺线索', 'atlas-primary') + outLink(s.dianping_url, '大众点评');
+    const menuNotes = (s.menu_notes || []);
+    const nameParts = s.name.match(/^([^（]+)(（.*)$/);
+    const shopTitle = nameParts ? esc(nameParts[1]) + `<small>${esc(nameParts[2])}</small>` : esc(s.name);
+    $('#shop-page').innerHTML = `<div class="wrap atlas-detail">
+      <a class="atlas-back" href="#shops">← 返回店铺目录</a>
+      <header class="atlas-store-hero ${leadImg ? '' : 'atlas-store-text'}">
+        <div class="atlas-store-intro"><p class="eyebrow">${esc(provinceName(s.province))} / ${esc(cityName(s.city))} · 食味档案</p>
+          <h1>${shopTitle}</h1>
+          <p class="atlas-store-dishes">${esc(ds.map(d => d.zh).join(' · ') || (menuNotes.length ? '菜品线索来自原片或观众评论，详见下方来源。' : '循着视频里的烟火气，寻找这家店。'))}</p>
+          <div class="atlas-address-block"><span class="atlas-address-status" data-status="${esc(s.address_status)}">${statusText(s)}</span><p>${esc(s.address || '具体地址待核实')}</p></div>
+          <div class="atlas-actions">${navigation || '<span class="muted">还没有可核对的地图入口</span>'}</div>
+          ${s.caveat ? `<p class="atlas-hero-caveat">${esc(s.caveat)}</p>` : ''}
+        </div>
+        ${leadImg ? `<figure class="atlas-store-photo"><button type="button" ${leadDish ? `data-dish="${esc(leadDish.id)}"` : `data-v="${esc(video.id)}" data-t="0"`} aria-label="查看相关视频画面"><img src="${esc(leadImg)}" alt="${esc(leadDish?.zh || s.name)}相关视频画面" fetchpriority="high"><span>看原画面 ↗</span></button><figcaption>图片来自盗月社${leadDish ? `相关菜品「${esc(leadDish.zh)}」的视频画面` : '相关视频封面'}，非门店实景核验图。</figcaption></figure>` : `<div class="atlas-no-photo" aria-hidden="true"><span>${esc(cityName(s.city))}</span><b>街巷里的<br>下一口。</b><small>评论指路 · 待到店核实</small></div>`}
+      </header>
+      <nav class="atlas-detail-nav" aria-label="店铺详情导航"><button type="button" data-shop-jump="store-food">吃什么</button><button type="button" data-shop-jump="store-opinions">评论怎么看</button><button type="button" data-shop-jump="store-location">怎么去</button><button type="button" data-shop-jump="store-videos">原视频与来源</button></nav>
+      <div class="atlas-detail-grid atlas-editorial-grid">
+        <section class="atlas-panel atlas-food-panel ${ds.length === 1 ? 'atlas-food-single' : ''}" id="store-food"><p class="eyebrow">这一口，值得了解</p><h2>到店吃什么</h2>
+          ${ds.length ? `<p class="atlas-section-caption">菜品与价格来自拍摄当时；点开可看主播原话。</p><div class="dishes">${ds.map(d => dishCard(d, false, s.id)).join('')}</div>` : !menuNotes.length ? '<p class="muted">菜品尚未逐项核实，可从相关原视频继续查看。</p>' : ''}
+          ${menuNotes.length ? `<div class="atlas-menu-notes"><p class="muted">原片与评论中的菜品线索（未生成主播评分）</p><ul class="atlas-menu-lines">${menuNotes.map((note,i) => `<li><span>${String(i+1).padStart(2,'0')}</span>${esc(note)}</li>`).join('')}</ul></div>` : ''}
+        </section>
+        <section class="atlas-panel atlas-opinions-panel" id="store-opinions"><p class="eyebrow">去之前，多听一面</p><h2>评论里怎么说</h2><p class="atlas-section-caption">来自已列明的观众评论与公开资料，不作食客评分。</p>
+          ${(s.comment_summary || []).length ? `<ol class="atlas-opinion-list">${s.comment_summary.map((x,i) => `<li><span>${String(i+1).padStart(2,'0')}</span><p>${esc(x)}</p></li>`).join('')}</ol>` : '<p class="muted">暂无已整理的评论。</p>'}
+          <details class="atlas-sources"><summary>展开评论来源与核实记录（${(s.sources || []).length}）</summary>${s.checked ? `<p class="muted">资料核对：${esc(s.checked)}</p>` : ''}<ul>${(s.sources || []).map(x => `<li>${outLink(x.url, x.author || '原始来源')}${x.date ? `<time>${esc(x.date)}</time>` : ''}<p>${esc(x.note || '')}</p></li>`).join('')}</ul></details>
+        </section>
+        <section class="atlas-panel atlas-location-panel" id="store-location"><p class="eyebrow">把地址带上，再出发</p><h2>怎么去</h2>
+          <p class="atlas-location-address">${esc(s.address || '具体地址待核实')}</p><div class="atlas-badges"><span>${statusText(s)}</span><span>${precisionText(s)}</span></div>
+          ${s.relative_location ? `<p class="atlas-relative"><b>周边方位</b> · ${esc(s.relative_location)}</p>` : ''}
+          ${map || (!hasPoint(s) ? relativeMap(s) : '')}
+          ${hasPoint(s) ? `<details class="atlas-position-details" ${map ? '' : 'open'}><summary>店铺相对位置与坐标说明</summary>${relativeMap(s)}</details>` : ''}
+          <div class="atlas-actions">${navigation}</div>${s.caveat ? `<p class="atlas-caveat">${esc(s.caveat)}</p>` : ''}
+        </section>
+        <section class="atlas-panel atlas-videos-panel" id="store-videos"><p class="eyebrow">回到当时那一桌</p><h2>原视频</h2><div class="atlas-related">
+          ${(s.videos || []).filter(id => byId[id]).map(id => `<button type="button" data-v="${esc(id)}" data-t="0">▶ ${esc(byId[id].title_zh)}</button>`).join('')}
+          ${bvIds.map(id => { const v = bs.find(x => x.bvid === id); return `<div>${outLink(v?.url || `https://www.bilibili.com/video/${encodeURIComponent(id)}/`, v?.title || '在哔哩哔哩查看相关视频')}${v?.notes ? `<details class="atlas-video-notes"><summary>资料整理说明</summary><p class="muted">${esc(Array.isArray(v.notes) ? v.notes.join('；') : v.notes)}</p></details>` : ''}</div>`; }).join('')}
+          ${!video && !bvIds.length ? '<p class="muted">暂无已关联的视频。</p>' : ''}
+        </div><p class="atlas-section-caption">评论的作者、日期与链接，见「评论里怎么说」下方的来源记录。</p></section>
+      </div></div>`;
+  }
+  function shopRoute() {
+    const isShop=location.hash.startsWith('#shop/');
+    if(isShop){ if(!$('#top').hidden) shopState.scroll=window.scrollY; let id;try{id=decodeURIComponent(location.hash.slice(6));}catch{id='';} const s=shops().find(x=>x.id===id); $('#top').hidden=true; $('#shop-page').hidden=false; if($('#dish').open)$('#dish').close(); closePlayer(); if(s){renderShopPage(s);document.title=s.name+' · 红油地图';}else{$('#shop-page').innerHTML='<div class="wrap atlas-detail"><h1>还没有这家店的资料</h1><p><a href="#shops">返回店铺目录 →</a></p></div>';} window.scrollTo({top:0,behavior:'instant'}); $('#shop-page').focus({preventScroll:true}); }
+    else if($('#top').hidden){ $('#top').hidden=false;$('#shop-page').hidden=true;document.title='红油地图';requestAnimationFrame(()=>{const target=document.getElementById(location.hash.slice(1));if(target)target.scrollIntoView();else window.scrollTo(0,shopState.scroll);}); }
+  }
+  function initShops() {
+    if (!shops().some(s=>provinceKey(s.province)==='guizhou')) shopState.province='all';
+    renderShops();
+    $('#shop-search').addEventListener('input',e=>{shopState.q=e.target.value;shopState.visible=12;renderShops();});
+    document.addEventListener('click',e=>{
+      const jump=e.target.closest('[data-shop-jump]');
+      if(jump){document.getElementById(jump.dataset.shopJump)?.scrollIntoView({behavior:smooth()});return;}
+      const p=e.target.closest('[data-shop-province]'), c=e.target.closest('[data-shop-city]'), st=e.target.closest('[data-shop-status]');
+      if(p){shopState.province=p.dataset.shopProvince;shopState.city='all';shopState.visible=12;renderShops();}
+      if(c){shopState.city=c.dataset.shopCity;shopState.visible=12;renderShops();}
+      if(st){shopState.status=st.dataset.shopStatus;shopState.visible=12;renderShops();}
+      if(e.target.closest('[data-shop-more], [data-shop-all]')){
+        const previous=$('#shop-list').children.length;
+        shopState.visible=e.target.closest('[data-shop-all]')?Number.MAX_SAFE_INTEGER:shopState.visible+12;
+        renderShops();$('#shop-list').children[previous]?.focus({preventScroll:true});
+      }
+      if(e.target.closest('[data-shop-reset]')){shopState.province='all';shopState.city='all';shopState.status='all';shopState.q='';shopState.visible=12;$('#shop-search').value='';renderShops();}
+    });
+    window.addEventListener('hashchange',shopRoute);shopRoute();
+  }
+
   async function boot() {
-    [D, MAP] = await Promise.all([fetch(DATA_BASE + 'data/site.json').then((r) => r.json()), fetch(DATA_BASE + 'data/map.json').then((r) => r.json())]);
+    [D, MAP] = await Promise.all([fetch(DATA_BASE + 'data/site.json?v=stores-20261018').then((r) => r.json()), fetch(DATA_BASE + 'data/map.json').then((r) => r.json())]);
     D.videos.forEach((v) => (byId[v.id] = v));
     D.provinces.forEach((p) => (provById[p.id] = p));
     D.dishes.forEach((d) => (dishById[d.id] = d));
@@ -384,7 +540,7 @@
       const vs = (c.videos || []).map((id) => byId[id]).filter(Boolean).sort((a, b) => (b.views || 0) - (a.views || 0));
       c._lead = vs[0]?.id;
     });
-    wire(); renderAll();
+    wire(); renderAll(); initShops();
     if (location.hash.startsWith('#city-')) setTimeout(() => goCity(location.hash.slice(6)), 80);
   }
   boot().catch((err) => {
