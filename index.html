@@ -6,13 +6,15 @@
 <title>红油地图</title>
 <meta name="description" content="跟着盗月社找西南美食：贵州遵义优先的店铺详情、地址导航、B站评论与来源，再看云南贵州菜品和主播原话。地址核实状态逐店标明。">
 <meta property="og:title" content="红油地图 · 跟着盗月社吃遍西南">
-<meta property="og:description" content="每家店一个可分享详情页：真实店名线索、地址、地图导航、评论摘要和原视频。贵州遵义优先，待核实地址明确标注。">
+<meta property="og:description" content="每家店一个可分享详情页：真实店名线索、地址、地图导航、评论原文和内嵌原视频。贵州遵义优先，待核实地址明确标注。">
 <meta property="og:image" content="https://i.ytimg.com/vi/pGrNXPXiTxg/maxresdefault.jpg">
 <meta name="theme-color" content="#1c1410">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;family=Gloock&amp;family=Noto+Serif+SC:wght@600;900&amp;display=swap">
-<link rel="stylesheet" href="assets/app.css?v=stores-20261018">
+<link rel="stylesheet" href="assets/app.css?v=design-20261018c">
+<link rel="stylesheet" href="assets/store.css?v=design-20261018c">
+<link rel="stylesheet" href="assets/store-map.css?v=design-20261018c">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23d9542f'/%3E%3Cpath d='M18 26h28M18 38h28M26 18v28M38 18v28' stroke='%23fbe7c8' stroke-width='3'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -44,23 +46,13 @@
           <span class="h1-zh" hidden="">西南，一碗一碗吃过去。</span>
         </h1>
         <p class="lede" data-i18n-html="hero.lede"></p>
-        <div class="hero-actions"><a class="atlas-primary" href="#shops">从贵州开始找店 →</a><a href="#menu">先看看吃什么</a></div>
+        <div class="hero-actions"><a href="#shops">循着视频找店 →</a></div>
         <dl class="stats" id="stats"></dl>
       </div>
       <figure class="pot-fig">
         <svg id="pot" class="pot" viewBox="0 0 400 400" role="img" aria-labelledby="pot-title"><title id="pot-title">九宫格火锅：每一格是一座城市，点击跳到对应章节。</title></svg>
         <figcaption data-i18n="hero.pot"></figcaption>
       </figure>
-    </div>
-  </section>
-
-  <section id="shops" class="band" aria-labelledby="shops-title">
-    <div class="wrap">
-      <header class="sec-head"><p class="eyebrow">把视频里的好吃，变成下一站</p><h2 id="shops-title">先选一座城，再找一家店。</h2><p class="sec-sub">贵州优先整理，云南继续保留。每家店都有自己的详情页：地址、位置、吃什么，以及资料从哪里来。</p></header>
-      <div id="shop-progress" class="atlas-progress"></div>
-      <div class="atlas-filters"><label for="shop-search">想吃什么，想去哪儿？</label><input id="shop-search" type="search" placeholder="搜索店名、菜品、地址或城市" autocomplete="off"><div id="shop-provinces" class="atlas-chips" role="group" aria-label="按省份找店"></div><div id="shop-cities" class="atlas-chips" role="group" aria-label="按城市找店"></div></div>
-      <div class="atlas-status-row"><span>地址核实程度</span><div id="shop-status" class="atlas-chips" role="group" aria-label="按地址核实程度筛选"></div></div>
-      <p id="shop-count" class="muted" aria-live="polite"></p><div id="shop-list" class="atlas-shop-grid"></div><div id="shop-pagination" class="atlas-pagination"></div>
     </div>
   </section>
 
@@ -155,6 +147,19 @@
   </section>
 </main>
 
+<main id="directory-page" hidden aria-label="店铺目录">
+  <section id="shops" class="band" aria-labelledby="shops-title">
+    <div class="wrap">
+      <header class="sec-head"><p class="eyebrow">把视频里的好吃，变成下一站</p><h1 id="shops-title">下一顿，去哪儿吃。</h1><p class="sec-sub">沿着盗月社的镜头找店。贵州、遵义优先；点开一家，看原片、读评论，再把地址带上。</p></header>
+      <div id="shop-progress" class="atlas-progress"></div>
+      <div class="atlas-filters"><label for="shop-search">想吃什么，想去哪儿？</label><input id="shop-search" type="search" placeholder="搜索店名、菜品、地址或城市" autocomplete="off"><div id="shop-provinces" class="atlas-chips" role="group" aria-label="按省份找店"></div><div id="shop-cities" class="atlas-chips" role="group" aria-label="按城市找店"></div></div>
+      <details class="atlas-filter-details"><summary>按地址核实程度筛选</summary><div class="atlas-status-row"><span>地址核实程度</span><div id="shop-status" class="atlas-chips" role="group" aria-label="按地址核实程度筛选"></div></div>
+      </details><p id="shop-count" class="muted" aria-live="polite"></p><div id="shop-list" class="atlas-shop-grid"></div><div id="shop-pagination" class="atlas-pagination"></div>
+    </div>
+  </section>
+
+</main>
+
 <main id="shop-page" hidden aria-label="店铺详情" tabindex="-1"></main>
 
 <footer class="foot">
@@ -179,6 +184,9 @@
 
 <dialog id="dish" class="dish-dlg" aria-labelledby="dd-title"><div id="dish-body"></div></dialog>
 
-<script src="assets/app.js?v=stores-20261018" defer=""></script>
+<script src="assets/app-links.js?v=design-20261018c" defer></script>
+<script src="assets/store-media.js?v=design-20261018c" defer></script>
+<script src="assets/store-map.js?v=design-20261018c" defer></script>
+<script src="assets/app.js?v=design-20261018c" defer=""></script>
 </body>
 </html>

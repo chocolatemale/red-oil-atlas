@@ -307,8 +307,12 @@
   /* ---------- dialogs ---------- */
   function openPlayer(vid, t, qz, qe, cityId) {
     const v = byId[vid] || (D.pending || []).find((p) => p.id === vid);
+    if (location.hash.startsWith('#shop/') && $('#store-embed')) {
+      if ($('#dish').open) $('#dish').close();
+      setStoreVideo(vid, t, true); return;
+    }
     const start = Math.max(0, Math.round(t || 0) - 1);
-    $('#pl-embed').outerHTML = `<iframe id="pl-embed" src="https://www.youtube-nocookie.com/embed/${vid}?start=${start}&amp;autoplay=1&amp;rel=0&amp;playsinline=1" title="${esc(v?.title_zh || 'YouTube 视频')}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen=""></iframe>`;
+    $('#pl-embed').outerHTML = `<iframe id="pl-embed" src="${esc(StoreMedia.embedURL(vid,t,true,location.origin))}" referrerpolicy="strict-origin-when-cross-origin" title="${esc(v?.title_zh || 'YouTube 视频')}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen=""></iframe>`;
     const c = cityById[cityId] || cityById[v?.city] || provById[v?.province];
     $('#pl-where').textContent = c ? c.zh : '';
     $('#pl-where').style.color = c ? pcol(c.province || c.id) : '';
@@ -400,12 +404,13 @@
     return context ? `<div class="atlas-related"><h4 class="subhead">非对外餐馆场景</h4><p>${esc(context.reason)}</p></div>` : '';
   }
   function shopLinksForCity(id) {
-    const ss = shops().filter(s => cityKey(s.city) === id);
-    return ss.length ? `<div class="atlas-related"><h4 class="subhead">这一城的店铺</h4>${ss.map(s => `<a href="${shopHref(s)}">${esc(s.name)} <small>${statusText(s)}</small> →</a>`).join('')}</div>` : '';
+    const count = shops().filter(s => cityKey(s.city) === id).length;
+    return count ? `<div class="atlas-city-entry"><span>把这一城的好吃，变成下一站。</span><a href="#shops" data-shop-city-go="${esc(id)}">查看 ${count} 条店铺与摊位档案 →</a></div>` : '';
   }
   function shopCard(s) {
     const ds = (s.dish_ids || []).map(id => dishById[id]).filter(Boolean);
-    return `<a class="atlas-shop-card" href="${shopHref(s)}"><div class="atlas-card-top"><span>${esc(cityName(s.city))}</span><span>${precisionText(s)}</span></div><h3>${esc(s.name)}</h3><p>${esc(ds.map(d => d.zh).join(' · ') || '查看店铺资料与视频线索')}</p><div class="atlas-card-address">${esc(s.address || '具体地址仍待核实')}</div><div class="atlas-card-foot"><span>${statusText(s)}</span><b>店铺详情 →</b></div></a>`;
+    const image = ds.find(d=>d.img)?.img || ((s.videos || []).find(id=>byId[id]) ? yt(s.videos.find(id=>byId[id]),'hqdefault') : '');
+    return `<a class="atlas-shop-card" href="${shopHref(s)}"><div class="atlas-card-image">${image?`<img src="${esc(image)}" alt="相关视频画面" loading="lazy">`:`<span class="atlas-card-place">${esc(cityName(s.city))}</span>`}<span class="atlas-card-city">${esc(cityName(s.city))}</span></div><div class="atlas-card-copy"><h3>${esc(s.name)}</h3><p>${esc(ds.map(d => d.zh).join(' · ') || (s.menu_notes || [])[0] || '街巷里的一站')}</p><div class="atlas-card-address">${esc(s.address || '具体地址待核实')}</div><div class="atlas-card-foot"><span>${statusText(s)}</span><b>去看看 →</b></div></div></a>`;
   }
   function renderShops() {
     const ps = [...new Set(shops().map(s => provinceKey(s.province)))].sort((a,b) => PROV_ORDER.indexOf(a)-PROV_ORDER.indexOf(b));
@@ -431,18 +436,6 @@
     const gz = shops().filter(s=>provinceKey(s.province)==='guizhou'), zy=gz.filter(s=>cityKey(s.city)==='zunyi');
     $('#shop-progress').innerHTML=`<span><b>贵州 ${gz.length}</b> 条已建档</span><span><b>遵义 ${zy.length}</b> 条店铺线索</span><span><b>${shops().filter(s=>s.address_status==='corroborated').length}</b> 条地址有交叉资料</span><span>建档不等于营业确认 · 出发前再核对</span>`;
   }
-  function streetMap(s) {
-    const loc = s.location;
-    if (!loc || !Number.isFinite(loc.wgs84_lat) || !Number.isFinite(loc.wgs84_lon) || Math.abs(loc.wgs84_lat) > 90 || Math.abs(loc.wgs84_lon) > 180) return '';
-    const lat = loc.wgs84_lat, lon = loc.wgs84_lon, exact = loc.precision === 'poi';
-    const spread = exact ? .007 : loc.precision === 'street' ? .016 : .05;
-    const dx = spread / Math.max(.2, Math.cos(lat * Math.PI / 180));
-    const params = new URLSearchParams({bbox: [Math.max(-180,lon-dx),Math.max(-90,lat-spread),Math.min(180,lon+dx),Math.min(90,lat+spread)].join(','),layer:'mapnik'});
-    if (exact) params.set('marker', `${lat},${lon}`);
-    const embed = 'https://www.openstreetmap.org/export/embed.html?' + params;
-    const full = `https://www.openstreetmap.org/${exact ? `?mlat=${lat}&mlon=${lon}` : ''}#map=${exact ? 16 : loc.precision === 'street' ? 14 : 12}/${lat}/${lon}`;
-    return `<div class="atlas-road-map"><iframe src="${esc(embed)}" title="${esc(s.name)}道路地图${exact ? '' : '，仅显示所在范围'}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div><p class="atlas-map-note">${exact ? '地图标记使用已提供的 WGS84 店铺坐标。' : '地图只显示已知街道或区域范围，不标记具体店址。'} 道路底图来自开放街道地图。${outLink(full, '打开完整地图')}</p>`;
-  }
   function relativeMap(s) {
     if (!hasPoint(s)) return `<div class="atlas-no-map"><span>位置待核实</span><p>这家店还没有可靠坐标，因此暂不在地图上落点。</p><p>${esc(s.address || '具体地址待补充')}</p></div>`;
     const peers = shops().filter(x => x.id===s.id || (cityKey(x.city)===cityKey(s.city) && hasPoint(x)));
@@ -456,63 +449,106 @@
     const bar=Math.pow(10,Math.floor(Math.log10(120/scale))),length=bar*scale;
     return `<div class="atlas-position-map"><svg viewBox="0 0 660 410" role="img" aria-label="${esc(cityName(s.city))}店铺相对位置示意，北向上"><defs><pattern id="shop-grid" width="44" height="41" patternUnits="userSpaceOnUse"><path d="M44 0H0V41" fill="none" stroke="currentColor" stroke-opacity=".08"/></pattern></defs><rect width="660" height="410" fill="url(#shop-grid)"/><text x="25" y="32" class="atlas-map-caption">${esc(cityName(s.city))} · 相对位置示意</text><text x="615" y="32">北 ↑</text>${marks}<path d="M25 365v7h${length}v-7" class="atlas-scale"/><text x="25" y="395" class="atlas-map-caption">${bar>=1?bar+' 公里':Math.round(bar*1000)+' 米'}</text></svg></div><p class="atlas-map-note">实心编号表示店铺点位，虚线大圈表示街道或区域范围。此图用于比较方位与直线距离，不是道路导航。</p><ol class="atlas-map-key">${pts.map(({s:x},i)=>`<li><a href="${shopHref(x)}"><b>${i+1}</b>${esc(x.name)}</a><span>${precisionText(x)}</span></li>`).join('')}</ol>${s.location.note?`<p class="muted">位置说明：${esc(s.location.note)}</p>`:''}`;
   }
+  function appLink(provider, url, label) {
+    if (!safeURL(url)) return '';
+    const link = AppLinks.build(provider,url);
+    if (!link) return outLink(url,label);
+    return `<span class="atlas-app-action"><a class="atlas-app-link ${provider==='amap'?'atlas-primary':''}" data-app-provider="${provider}" data-app-web="${safeURL(link.webUrl)}" href="${esc(link.href)}" ${link.target ? `target="${esc(link.target)}"` : ''} rel="noopener">${esc(label)} ↗</a>${link.mode!=='web'?`<a class="atlas-web-fallback" href="${safeURL(link.webUrl)}" target="_blank" rel="noopener">网页版</a>`:''}</span>`;
+  }
+  function storeEmbed(id,t=0,autoplay=false) {
+    return `<iframe id="store-embed" src="${esc(StoreMedia.embedURL(id,t,autoplay,location.origin))}" title="${esc(byId[id]?.title_zh || 'YouTube 原视频')}" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen></iframe>`;
+  }
+  function setStoreVideo(id,t=0,autoplay=false) {
+    if (!byId[id] || !$('#store-embed')) return;
+    $('#store-embed').outerHTML=storeEmbed(id,t,autoplay);
+    $('#store-video-title').textContent=byId[id].title_zh;
+    $('#store-video-external').href=`https://www.youtube.com/watch?v=${id}&t=${Math.max(0,Math.round(t||0)-1)}s`;
+    document.querySelectorAll('[data-store-video]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.storeVideo===id && Number(el.dataset.t)===Number(t))));
+    $('#store-videos').scrollIntoView({behavior:smooth(),block:'start'});
+  }
+  let cleanupStoreMap = null;
   function renderShopPage(s) {
-    const ds = (s.dish_ids || []).map(id => dishById[id]).filter(Boolean);
-    const bs = (D.bilibili || []).filter(v => (s.bvids || []).includes(v.bvid) || (v.shops || []).includes(s.id));
-    const bvIds = [...new Set([...(s.bvids || []), ...bs.map(v => v.bvid)])];
-    const video = (s.videos || []).map(id => byId[id]).find(Boolean);
-    const leadDish = ds.find(d => d.img), leadImg = leadDish?.img || (video ? yt(video.id, 'hqdefault') : null);
-    const map = streetMap(s);
-    const navigation = outLink(s.map_url, s.map_scope === 'region' ? '高德看所在区域' : '高德查店铺线索', 'atlas-primary') + outLink(s.dianping_url, '大众点评');
-    const menuNotes = (s.menu_notes || []);
-    const nameParts = s.name.match(/^([^（]+)(（.*)$/);
-    const shopTitle = nameParts ? esc(nameParts[1]) + `<small>${esc(nameParts[2])}</small>` : esc(s.name);
-    $('#shop-page').innerHTML = `<div class="wrap atlas-detail">
-      <a class="atlas-back" href="#shops">← 返回店铺目录</a>
-      <header class="atlas-store-hero ${leadImg ? '' : 'atlas-store-text'}">
-        <div class="atlas-store-intro"><p class="eyebrow">${esc(provinceName(s.province))} / ${esc(cityName(s.city))} · 食味档案</p>
-          <h1>${shopTitle}</h1>
-          <p class="atlas-store-dishes">${esc(ds.map(d => d.zh).join(' · ') || (menuNotes.length ? '菜品线索来自原片或观众评论，详见下方来源。' : '循着视频里的烟火气，寻找这家店。'))}</p>
-          <div class="atlas-address-block"><span class="atlas-address-status" data-status="${esc(s.address_status)}">${statusText(s)}</span><p>${esc(s.address || '具体地址待核实')}</p></div>
-          <div class="atlas-actions">${navigation || '<span class="muted">还没有可核对的地图入口</span>'}</div>
-          ${s.caveat ? `<p class="atlas-hero-caveat">${esc(s.caveat)}</p>` : ''}
-        </div>
-        ${leadImg ? `<figure class="atlas-store-photo"><button type="button" ${leadDish ? `data-dish="${esc(leadDish.id)}"` : `data-v="${esc(video.id)}" data-t="0"`} aria-label="查看相关视频画面"><img src="${esc(leadImg)}" alt="${esc(leadDish?.zh || s.name)}相关视频画面" fetchpriority="high"><span>看原画面 ↗</span></button><figcaption>图片来自盗月社${leadDish ? `相关菜品「${esc(leadDish.zh)}」的视频画面` : '相关视频封面'}，非门店实景核验图。</figcaption></figure>` : `<div class="atlas-no-photo" aria-hidden="true"><span>${esc(cityName(s.city))}</span><b>街巷里的<br>下一口。</b><small>评论指路 · 待到店核实</small></div>`}
+    const ds=(s.dish_ids||[]).map(id=>dishById[id]).filter(Boolean);
+    const bs=(D.bilibili||[]).filter(v=>(s.bvids||[]).includes(v.bvid)||(v.shops||[]).includes(s.id));
+    const bvIds=[...new Set([...(s.bvids||[]),...bs.map(v=>v.bvid)])];
+    const segments=StoreMedia.segments(s,D.dishes,D.videos), first=segments[0];
+    const photo=ds.find(d=>d.img)?.img || (first ? yt(first.video,'maxresdefault') : null);
+    const menuNotes=s.menu_notes||[], voices=s.comment_voices||[];
+    const navigation=appLink('amap',s.map_url,s.map_scope==='region'?'高德查看区域':'高德地图')+appLink('dianping',s.dianping_url,'大众点评');
+    const title=s.name.match(/^([^（]+)(（.*)$/);
+    const heading=title?esc(title[1])+`<small>${esc(title[2])}</small>`:esc(s.name);
+    const sectionTitle=(n,eyebrow,title)=>`<header class="store-section-head"><span>${n}</span><div><p class="eyebrow">${eyebrow}</p><h2>${title}</h2></div></header>`;
+    $('#shop-page').innerHTML=`<div class="wrap store-shell" style="--pc:${pcol(provinceKey(s.province))}">
+      <div class="store-breadcrumb"><a href="#shops">← 找店铺</a><span>/</span><a href="#shops" data-shop-city-go="${esc(cityKey(s.city))}">${esc(cityName(s.city))}</a><span>/</span><span>这一家</span></div>
+      <header class="city-banner store-banner ${photo?'':'store-banner-empty'}">
+        ${photo?`<img src="${esc(photo)}" alt="${esc(s.name)}相关视频画面" fetchpriority="high">`:''}
+        <div class="banner-in"><div class="sign-board">${esc(cityName(s.city))}</div><div class="banner-text"><p class="eyebrow">${esc(provinceName(s.province))} · 跟着盗月社找店</p><h1>${heading}</h1><p class="store-taste">${esc(ds.map(d=>d.zh).join(' · ')||'镜头走过的街巷，记下这一站。')}</p></div></div>
+        ${photo?'<span class="store-photo-credit">盗月社相关视频画面</span>':''}
       </header>
-      <nav class="atlas-detail-nav" aria-label="店铺详情导航"><button type="button" data-shop-jump="store-food">吃什么</button><button type="button" data-shop-jump="store-opinions">评论怎么看</button><button type="button" data-shop-jump="store-location">怎么去</button><button type="button" data-shop-jump="store-videos">原视频与来源</button></nav>
-      <div class="atlas-detail-grid atlas-editorial-grid">
-        <section class="atlas-panel atlas-food-panel ${ds.length === 1 ? 'atlas-food-single' : ''}" id="store-food"><p class="eyebrow">这一口，值得了解</p><h2>到店吃什么</h2>
-          ${ds.length ? `<p class="atlas-section-caption">菜品与价格来自拍摄当时；点开可看主播原话。</p><div class="dishes">${ds.map(d => dishCard(d, false, s.id)).join('')}</div>` : !menuNotes.length ? '<p class="muted">菜品尚未逐项核实，可从相关原视频继续查看。</p>' : ''}
-          ${menuNotes.length ? `<div class="atlas-menu-notes"><p class="muted">原片与评论中的菜品线索（未生成主播评分）</p><ul class="atlas-menu-lines">${menuNotes.map((note,i) => `<li><span>${String(i+1).padStart(2,'0')}</span>${esc(note)}</li>`).join('')}</ul></div>` : ''}
+      <nav class="store-nav" aria-label="本店详情"><button data-shop-jump="store-food"><i>01</i> 吃什么</button><button data-shop-jump="store-videos"><i>02</i> 看原片</button><button data-shop-jump="store-location"><i>03</i> 去哪里</button><button data-shop-jump="store-opinions"><i>04</i> 听评论</button></nav>
+      <div class="store-layout">
+        <section class="store-section store-food" id="store-food">${sectionTitle('01','先说这一口','到店吃什么')}
+          ${ds.length?`<div class="dishes">${ds.map(d=>dishCard(d,false,s.id)).join('')}</div><p class="store-caption">价格为拍摄时价格；圆点代表主播在视频中的喜爱程度。</p>`:''}
+          ${menuNotes.length?`<ul class="store-menu-notes">${menuNotes.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}
+          ${!ds.length?'<p class="store-caption">此店尚无逐菜品的主播评分，先从原片与评论了解。</p>':''}
         </section>
-        <section class="atlas-panel atlas-opinions-panel" id="store-opinions"><p class="eyebrow">去之前，多听一面</p><h2>评论里怎么说</h2><p class="atlas-section-caption">来自已列明的观众评论与公开资料，不作食客评分。</p>
-          ${(s.comment_summary || []).length ? `<ol class="atlas-opinion-list">${s.comment_summary.map((x,i) => `<li><span>${String(i+1).padStart(2,'0')}</span><p>${esc(x)}</p></li>`).join('')}</ol>` : '<p class="muted">暂无已整理的评论。</p>'}
-          <details class="atlas-sources"><summary>展开评论来源与核实记录（${(s.sources || []).length}）</summary>${s.checked ? `<p class="muted">资料核对：${esc(s.checked)}</p>` : ''}<ul>${(s.sources || []).map(x => `<li>${outLink(x.url, x.author || '原始来源')}${x.date ? `<time>${esc(x.date)}</time>` : ''}<p>${esc(x.note || '')}</p></li>`).join('')}</ul></details>
+        <section class="store-section store-video" id="store-videos">${sectionTitle('02','回到当时那一桌','直接看原片')}
+          ${first?`<div class="store-player">${storeEmbed(first.video,first.start)}</div><div class="store-video-meta"><p id="store-video-title">${esc(first.title)}</p><a id="store-video-external" href="https://www.youtube.com/watch?v=${esc(first.video)}&amp;t=${Math.max(0,Math.round(first.start)-1)}s" target="_blank" rel="noopener">YouTube ↗</a></div>
+            <div class="store-chapters" aria-label="播放片段">${segments.flatMap(v=>(v.items.length?v.items:[{t:0,zh:'从本期开始'}]).map((d,i)=>`<button type="button" data-store-video="${esc(v.video)}" data-t="${d.t}" aria-pressed="${v.video===first.video && d.t===first.start}"><span>▶ ${mmss(d.t)}</span>${esc(d.zh)}${segments.length>1?`<small> · 第 ${segments.indexOf(v)+1} 期</small>`:''}</button>`)).join('')}</div>`:'<p class="store-caption">这家店暂未匹配到 YouTube 版本，可从下方 B站原片查看。</p>'}
+          ${bvIds.length?`<details class="store-bili"><summary>${first?'也在 B站看':'打开 B站原视频'} · ${bvIds.length} 期</summary><div class="atlas-related">${bvIds.map(id=>{const v=bs.find(x=>x.bvid===id);return outLink(v?.url||`https://www.bilibili.com/video/${id}/`,v?.title||'B站相关原视频');}).join('')}</div></details>`:''}
         </section>
-        <section class="atlas-panel atlas-location-panel" id="store-location"><p class="eyebrow">把地址带上，再出发</p><h2>怎么去</h2>
-          <p class="atlas-location-address">${esc(s.address || '具体地址待核实')}</p><div class="atlas-badges"><span>${statusText(s)}</span><span>${precisionText(s)}</span></div>
-          ${s.relative_location ? `<p class="atlas-relative"><b>周边方位</b> · ${esc(s.relative_location)}</p>` : ''}
-          ${map || (!hasPoint(s) ? relativeMap(s) : '')}
-          ${hasPoint(s) ? `<details class="atlas-position-details" ${map ? '' : 'open'}><summary>店铺相对位置与坐标说明</summary>${relativeMap(s)}</details>` : ''}
-          <div class="atlas-actions">${navigation}</div>${s.caveat ? `<p class="atlas-caveat">${esc(s.caveat)}</p>` : ''}
+        <section class="store-section store-location" id="store-location">${sectionTitle('03','地址带上，再出发','去哪里')}
+          <p class="store-address">${esc(s.address||'具体地址待核实')}</p><p class="store-status" data-status="${esc(s.address_status)}">${statusText(s)}</p>
+          ${StoreMap.render(s,{cities:D.cities,provinces:D.provinces,map:MAP})}
+          ${s.relative_location?`<p class="store-relative">${esc(s.relative_location)}</p>`:''}
+          <div class="atlas-actions">${navigation}</div>
+          ${s.caveat?`<p class="store-caveat">${esc(s.caveat)}</p>`:''}
+          ${hasPoint(s)?`<details class="store-evidence"><summary>同城方位与坐标说明</summary>${relativeMap(s)}</details>`:''}
         </section>
-        <section class="atlas-panel atlas-videos-panel" id="store-videos"><p class="eyebrow">回到当时那一桌</p><h2>原视频</h2><div class="atlas-related">
-          ${(s.videos || []).filter(id => byId[id]).map(id => `<button type="button" data-v="${esc(id)}" data-t="0">▶ ${esc(byId[id].title_zh)}</button>`).join('')}
-          ${bvIds.map(id => { const v = bs.find(x => x.bvid === id); return `<div>${outLink(v?.url || `https://www.bilibili.com/video/${encodeURIComponent(id)}/`, v?.title || '在哔哩哔哩查看相关视频')}${v?.notes ? `<details class="atlas-video-notes"><summary>资料整理说明</summary><p class="muted">${esc(Array.isArray(v.notes) ? v.notes.join('；') : v.notes)}</p></details>` : ''}</div>`; }).join('')}
-          ${!video && !bvIds.length ? '<p class="muted">暂无已关联的视频。</p>' : ''}
-        </div><p class="atlas-section-caption">评论的作者、日期与链接，见「评论里怎么说」下方的来源记录。</p></section>
-      </div></div>`;
+        <section class="store-section store-voices" id="store-opinions">${sectionTitle('04','保留评论者自己的话','评论区的声音')}
+          <p class="store-caption">B站评论原文节选 · 个人经历与观点，含指路线索，不代表一致评价。</p>
+          ${voices.length?`<div class="store-quote-grid">${voices.map(c=>`<figure class="q store-quote">${c.context?`<p class="store-quote-context">${esc(c.context)}</p>`:''}<blockquote>${esc(c.text)}</blockquote><figcaption><div><b>${esc(c.author)}</b><time>${esc(c.date||'')}</time></div>${outLink(c.url,c.url_precision==='video_comment_section'?'原视频评论区':'原评论')}</figcaption></figure>`).join('')}</div>`:`<div class="store-voice-empty"><p>这家店暂未找回可逐字核对的评论原文。</p><span>已有整理摘要保留在下方，原文核实后再补上。</span></div>`}
+          ${(s.comment_summary||[]).length?`<details class="store-summary" ${voices.length?'':'open'}><summary>我们从评论里整理了什么</summary><ul>${s.comment_summary.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></details>`:''}
+        </section>
+      </div>
+      <details class="store-evidence store-all-sources"><summary>资料来源与核对记录 <span>${(s.sources||[]).length} 条 · ${esc(s.checked||'')}</span></summary><ul>${(s.sources||[]).map(x=>`<li>${outLink(x.url,x.author||'原始来源')}${x.date?`<time>${esc(x.date)}</time>`:''}<p>${esc(x.note||'')}</p></li>`).join('')}</ul></details>
+      <div class="store-end"><a href="#shops" data-shop-city-go="${esc(cityKey(s.city))}">继续逛${esc(cityName(s.city))}的店 →</a><a href="#cities">回到城市篇章</a></div>
+    </div>`;
+    cleanupStoreMap=StoreMap.mount($('#shop-page'));
   }
   function shopRoute() {
-    const isShop=location.hash.startsWith('#shop/');
-    if(isShop){ if(!$('#top').hidden) shopState.scroll=window.scrollY; let id;try{id=decodeURIComponent(location.hash.slice(6));}catch{id='';} const s=shops().find(x=>x.id===id); $('#top').hidden=true; $('#shop-page').hidden=false; if($('#dish').open)$('#dish').close(); closePlayer(); if(s){renderShopPage(s);document.title=s.name+' · 红油地图';}else{$('#shop-page').innerHTML='<div class="wrap atlas-detail"><h1>还没有这家店的资料</h1><p><a href="#shops">返回店铺目录 →</a></p></div>';} window.scrollTo({top:0,behavior:'instant'}); $('#shop-page').focus({preventScroll:true}); }
-    else if($('#top').hidden){ $('#top').hidden=false;$('#shop-page').hidden=true;document.title='红油地图';requestAnimationFrame(()=>{const target=document.getElementById(location.hash.slice(1));if(target)target.scrollIntoView();else window.scrollTo(0,shopState.scroll);}); }
+    cleanupStoreMap?.();cleanupStoreMap=null;
+    const detail=location.hash.startsWith('#shop/'), directory=location.hash==='#shops';
+    if (detail && !$('#directory-page').hidden) shopState.scroll=window.scrollY;
+    $('#top').hidden=detail||directory;
+    $('#directory-page').hidden=!directory;
+    $('#shop-page').hidden=!detail;
+    document.body.dataset.view=detail?'shop':directory?'directory':'home';
+    if ($('#dish').open) $('#dish').close();
+    closePlayer();
+    if(detail){
+      let id;try{id=decodeURIComponent(location.hash.slice(6));}catch{id='';}
+      const s=shops().find(x=>x.id===id);
+      if(s){renderShopPage(s);document.title=s.name+' · 红油地图';}
+      else{$('#shop-page').innerHTML='<div class="wrap store-shell"><h1>还没有这家店的资料</h1><a href="#shops">返回店铺目录 →</a></div>';}
+      window.scrollTo({top:0,behavior:'instant'});$('#shop-page').focus({preventScroll:true});
+    }else{
+      $('#shop-page').innerHTML='';
+      document.title=directory?'找店铺 · 红油地图':'红油地图';
+      requestAnimationFrame(()=>{if(directory)window.scrollTo({top:shopState.scroll,behavior:'instant'});else document.getElementById(location.hash.slice(1)||'top')?.scrollIntoView();});
+    }
   }
   function initShops() {
     if (!shops().some(s=>provinceKey(s.province)==='guizhou')) shopState.province='all';
     renderShops();
     $('#shop-search').addEventListener('input',e=>{shopState.q=e.target.value;shopState.visible=12;renderShops();});
     document.addEventListener('click',e=>{
+      const app=e.target.closest('[data-app-provider]');
+      if(app){AppLinks.handleClick(e,AppLinks.build(app.dataset.appProvider,app.dataset.appWeb));return;}
+      const chapter=e.target.closest('[data-store-video]');
+      if(chapter){setStoreVideo(chapter.dataset.storeVideo,Number(chapter.dataset.t),true);return;}
+      const cityEntry=e.target.closest('[data-shop-city-go]');
+      if(cityEntry){shopState.province=cityById[cityEntry.dataset.shopCityGo]?.province||'all';shopState.city=cityEntry.dataset.shopCityGo;shopState.q='';shopState.status='all';shopState.visible=12;shopState.scroll=0;$('#shop-search').value='';renderShops();if(location.hash==='#shops')window.scrollTo({top:0,behavior:smooth()});}
       const jump=e.target.closest('[data-shop-jump]');
       if(jump){document.getElementById(jump.dataset.shopJump)?.scrollIntoView({behavior:smooth()});return;}
       const p=e.target.closest('[data-shop-province]'), c=e.target.closest('[data-shop-city]'), st=e.target.closest('[data-shop-status]');
@@ -530,7 +566,7 @@
   }
 
   async function boot() {
-    [D, MAP] = await Promise.all([fetch(DATA_BASE + 'data/site.json?v=stores-20261018').then((r) => r.json()), fetch(DATA_BASE + 'data/map.json').then((r) => r.json())]);
+    [D, MAP] = await Promise.all([fetch(DATA_BASE + 'data/site.json?v=design-20261018c').then((r) => r.json()), fetch(DATA_BASE + 'data/map.json').then((r) => r.json())]);
     D.videos.forEach((v) => (byId[v.id] = v));
     D.provinces.forEach((p) => (provById[p.id] = p));
     D.dishes.forEach((d) => (dishById[d.id] = d));
