@@ -68,7 +68,12 @@ export default function cityView(params, rawId) {
       </section>` : ''}
     </div>`,
     mount(root) {
-      root.querySelector('.city-tabs [aria-current]')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+      // centre the current city's tab without scrolling the page itself
+      const tabs = root.querySelector('.city-tabs-in'), on = tabs?.querySelector('[aria-current]');
+      if (on) {
+        const a = tabs.getBoundingClientRect(), b = on.getBoundingClientRect();
+        tabs.scrollLeft += b.left - a.left - (a.width - b.width) / 2;
+      }
     }
   };
 }

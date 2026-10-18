@@ -1,6 +1,7 @@
 /* Bottom sheet (dish details, video player). The sheet takes a history entry,
  * so the phone's back gesture closes it instead of leaving the page. */
 import { $, db, esc, mmss, CATS, cityName, priceFull, spice, dots, shopHref, out, yt } from './core.js';
+import { icon } from './icons.js';
 
 let pendingNav = null;
 const sheet = () => $('#sheet');
@@ -94,8 +95,7 @@ export function dishSheetHTML(d) {
       <p>${esc(d.what_zh)}</p>
       <p class="verdict">${esc(d.verdict_zh)}</p>
       ${d.quote_zh ? `<button type="button" class="quote-btn" data-play="${esc(d.video)}" data-t="${d.t}" data-quote="${esc(d.quote_zh)}" data-who="主播">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-        <span><span>“${esc(d.quote_zh)}”</span><small>看这一段 · ${mmss(d.t)}</small></span></button>` : ''}
+        ${icon.play}<span><span>“${esc(d.quote_zh)}”</span><small>看这一段 · ${mmss(d.t)}</small></span></button>` : ''}
       ${shops.length ? `<div class="sheet-actions">${shops.map((s) => `<a class="btn btn-primary" href="${shopHref(s)}">去${esc(s.name.replace(/（.*$/, ''))}</a>`).join('')}</div>`
         : ctx ? `<p class="note-box">${esc(ctx.reason)}</p>` : `<p class="fine">${esc(d.place_zh || '')}</p>`}
     </div>`;

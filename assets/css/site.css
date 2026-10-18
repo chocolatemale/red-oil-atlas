@@ -85,8 +85,10 @@ ul, ol { margin: 0; padding: 0; }
 .tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: var(--tabbar-h); font-size: 11px; color: var(--ink-3); }
 .tabbar a .ic { width: 24px; height: 24px; }
 .tabbar a.on { color: var(--chili); font-weight: 600; }
-.tabbar a:hover { text-decoration: none; color: var(--ink); }
-.tabbar a.on:hover { color: var(--chili); }
+@media (hover: hover) {
+  .tabbar a:hover { text-decoration: none; color: var(--ink); }
+  .tabbar a.on:hover { color: var(--chili); }
+}
 @media (max-width: 459px) { .brand-sub { display: none; } }
 
 /* ---------- controls ---------- */
@@ -341,6 +343,7 @@ details.sources li p { margin: 4px 0 0; color: var(--ink-2); font-size: 13px; }
 .act-primary { background: var(--chili-bg); color: var(--on-chili); }
 .act-primary:hover { color: var(--on-chili); }
 .act-off { color: var(--ink-3); flex-direction: column; gap: 0; }
+@media (max-width: 419px) { .actionbar .act:not(.act-primary) .ic { display: none; } }
 body[data-view="shop"] { padding-bottom: calc(80px + var(--safe-b)); }
 body[data-view="shop"] .tabbar { display: none; }
 body[data-view="shop"] .toast { bottom: calc(96px + var(--safe-b)); }
@@ -353,7 +356,7 @@ body[data-view="map"] { padding-bottom: 0; overflow: hidden; }
 .seg-float { pointer-events: auto; width: 230px; background: color-mix(in srgb, var(--sunk) 94%, transparent); box-shadow: var(--shadow); }
 .map-msg { position: absolute; left: 12px; right: 12px; top: 64px; z-index: 600; margin: 0; padding: 8px 12px; border-radius: 10px; background: var(--surface); font-size: 13px; box-shadow: var(--shadow); }
 .map-panel { position: absolute; left: 0; right: 0; bottom: 0; z-index: 700; display: flex; flex-direction: column; max-height: 40%; border-radius: 20px 20px 0 0; background: var(--surface); box-shadow: 0 -6px 20px rgba(27, 23, 20, .16); transition: max-height .25s ease; }
-.map-panel.open { max-height: 72%; }
+.map-panel.open { max-height: 60%; }
 .panel-handle { flex: none; display: flex; justify-content: center; align-items: center; height: 26px; border: 0; background: none; }
 .panel-handle span { width: 42px; height: 5px; border-radius: 3px; background: var(--line-2); }
 .panel-body { overflow-y: auto; overscroll-behavior: contain; padding: 0 20px 16px; }
@@ -390,6 +393,13 @@ path.area-on { fill-opacity: .26; stroke-width: 3; stroke-dasharray: none; }
 .pin b { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; padding: 0 4px; border-radius: 999px; background: var(--gz); color: #FFF; font-size: 12px; }
 .pin[data-prov="yunnan"] b { background: var(--yn); }
 .pin[data-side="l"] { flex-direction: row-reverse; padding: 0 4px 0 12px; transform: translate(calc(-100% + 16px), -50%); }
+.pin.bare { gap: 0; padding: 0 4px; }
+.pin.bare .pin-name { display: none; }
+.pin.hide { visibility: hidden; }
+.leaflet-marker-icon:hover { z-index: 999 !important; }
+.leaflet-marker-icon:hover .pin.bare .pin-name, .leaflet-marker-icon:focus-visible .pin.bare .pin-name { display: inline; }
+.leaflet-marker-icon:hover .pin.bare, .leaflet-marker-icon:focus-visible .pin.bare { gap: 6px; padding: 0 12px 0 4px; }
+.leaflet-marker-icon:hover .pin.bare[data-side="l"], .leaflet-marker-icon:focus-visible .pin.bare[data-side="l"] { padding: 0 4px 0 12px; }
 .leaflet-tooltip.area-label { padding: 2px 8px; border: 0; border-radius: 6px; background: var(--surface); color: var(--ink); font: 600 12px var(--sans); box-shadow: var(--shadow); }
 .leaflet-tooltip.area-label::before { display: none; }
 .leaflet-container:not(.zoom-near) .area-label { display: none; }

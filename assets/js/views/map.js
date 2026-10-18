@@ -5,8 +5,9 @@ import { setParams } from '../nav.js';
 import { icon } from '../icons.js';
 
 const RADIUS = 500;
-// which side a city's name sits on, so neighbours don't cover each other
-const LEFT = new Set(['liupanshui', 'anshun', 'chuxiong', 'dali', 'baoshan', 'mangshi', 'yuanyang']);
+// preferred side for a city's name; declutter() flips or hides names that still collide
+const LEFT = new Set(['anshun', 'chuxiong', 'dali', 'baoshan', 'yuanyang', 'kaili']);
+const hit = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
 
 export default function mapView(params) {
   const st = { p: params.get('p') || 'all', city: params.get('city') || '', shop: params.get('shop') || '', open: params.get('open') === '1' };
@@ -34,7 +35,37 @@ export default function mapView(params) {
       const pins = {}, areas = {};
       const pad = () => (matchMedia('(min-width: 900px)').matches
         ? { tl: [420, 80], br: [60, 40] }
-        : { tl: [24, 72], br: [24, panel.offsetHeight + 24] });
+        : { tl: [32, 72], br: [32, sheetHeight() + 24] });
+      // the sheet animates its max-height, so pad for the height it is heading to rather than the one it has now
+      const sheetHeight = () => Math.min(panel.firstElementChild.offsetHeight + body.scrollHeight,
+        root.querySelector('[data-map]').clientHeight * (panel.classList.contains('open') ? 0.6 : 0.4));
+
+      // Busiest cities keep their names; a name that would cover a neighbour or run off the map
+      // tries the other side, then shrinks to just the count bubble, then hides until zoomed in.
+      const declutter = () => {
+        const box = root.querySelector('[data-map]').getBoundingClientRect();
+        const minX = matchMedia('(min-width: 900px)').matches ? panel.getBoundingClientRect().right : box.left;
+        const placed = [];
+        const order = Object.keys(pins).sort((a, b) => (b === st.city) - (a === st.city) ||
+          (db.shopsByCity[b] || []).length - (db.shopsByCity[a] || []).length);
+        for (const id of order) {
+          const el = pins[id].getElement()?.querySelector('.pin');
+          if (!el) continue;
+          el.classList.remove('bare', 'hide');
+          const pref = LEFT.has(id) ? 'l' : 'r';
+          const fits = [pref, pref === 'l' ? 'r' : 'l'].some((side) => {
+            el.dataset.side = side;
+            const r = el.getBoundingClientRect();
+            return r.left >= minX + 4 && r.right <= box.right - 4 && !placed.some((p) => hit(p, r));
+          });
+          if (!fits) {
+            el.dataset.side = pref; el.classList.add('bare');
+            // a bubble sitting on top of a busier city is noise at this zoom; the list below still has it
+            if (placed.some((p) => hit(p, el.getBoundingClientRect()))) { el.classList.add('hide'); continue; }
+          }
+          placed.push(el.getBoundingClientRect());
+        }
+      };
 
       const cityList = () => {
         const list = realCities(st.p).filter((c) => (db.shopsByCity[c.id] || []).length);
@@ -71,6 +102,7 @@ export default function mapView(params) {
       const draw = () => {
         root.querySelectorAll('[data-seg="p"] button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === st.p)));
         Object.entries(pins).forEach(([id, m]) => m.getElement()?.classList.toggle('on', id === st.city));
+        if (ctl) declutter();
         Object.entries(areas).forEach(([id, a]) => a.getElement?.()?.classList.toggle('area-on', id === st.shop));
         if (st.city) cityPanel(); else cityList();
         setParams({ p: st.p === 'all' || st.city ? '' : st.p, city: st.city, shop: st.shop, open: '' });
@@ -85,7 +117,7 @@ export default function mapView(params) {
         const seg = e.target.closest('[data-seg="p"] button');
         if (seg) { st.p = seg.dataset.v; st.city = ''; st.shop = ''; draw(); fitProvince(); return; }
         const city = e.target.closest('[data-city]');
-        if (city) { st.city = city.dataset.city; st.shop = ''; draw(); panel.classList.add('open'); return; }
+        if (city) { st.city = city.dataset.city; st.shop = ''; panel.classList.add('open'); draw(); return; }
         if (e.target.closest('[data-up]')) { st.city = ''; st.shop = ''; draw(); fitProvince(); return; }
         if (e.target.closest('[data-toggle]')) panel.classList.toggle('open');
       });
@@ -103,17 +135,17 @@ export default function mapView(params) {
                 const n = (db.shopsByCity[c.id] || []).length;
                 if (!n) continue;
                 const m = L.marker(ll(c.lat, c.lon), {
-                  icon: L.divIcon({ className: 'pin-wrap', html: `<span class="pin" data-prov="${c.province}" data-side="${LEFT.has(c.id) ? 'l' : 'r'}"><b>${n}</b>${esc(cityShort(c.id))}</span>`, iconSize: null, iconAnchor: [0, 0] }),
+                  icon: L.divIcon({ className: 'pin-wrap', html: `<span class="pin" data-prov="${c.province}" data-side="${LEFT.has(c.id) ? 'l' : 'r'}"><b>${n}</b><span class="pin-name">${esc(cityShort(c.id))}</span></span>`, iconSize: null, iconAnchor: [0, 0] }),
                   title: `${cityName(c.id)}，${n} 家店`, keyboard: true, riseOnHover: true
                 }).addTo(layer);
-                m.on('click', () => { st.city = c.id; st.shop = ''; draw(); panel.classList.add('open'); });
+                m.on('click', () => { st.city = c.id; st.shop = ''; panel.classList.add('open'); draw(); });
                 pins[c.id] = m;
               }
               for (const s of shops().filter(hasPoint)) {
                 const a = L.circle(ll(...point(s)), { radius: RADIUS, className: 'area' + (s.id === st.shop ? ' area-on' : '') }).addTo(layer);
                 a.bindTooltip(esc(s.name.replace(/（.*$/, '')), { permanent: true, direction: 'top', className: 'area-label', offset: [0, -6] });
                 a.on('click', () => {
-                  st.city = s.city; st.shop = s.id; draw(); panel.classList.add('open');
+                  st.city = s.city; st.shop = s.id; panel.classList.add('open'); draw();
                   body.querySelector(`[data-shop-li="${CSS.escape(s.id)}"]`)?.scrollIntoView({ block: 'nearest' });
                 });
                 areas[s.id] = a;
@@ -121,6 +153,7 @@ export default function mapView(params) {
             }
           });
           if (!alive) { ctl.destroy(); return; }
+          ctl.map.on('moveend', declutter);
           if (st.shop && db.shop[st.shop] && hasPoint(db.shop[st.shop])) { panel.classList.add('open'); draw(); ctl.fit([point(db.shop[st.shop])], 15, pad()); }
           else if (st.city) { panel.classList.add('open'); draw(); }
           else fitProvince();
