@@ -45,7 +45,7 @@
     'm.count': ['{n} dishes', '共 {n} 道'], 'm.empty': ['Nothing matches. Try raising the heat limit or clearing a filter.', '没有符合条件的菜。试试调高辣度上限，或去掉一个筛选。'],
     'm.all': ['All', '全部'], 'm.noprice': ['price not mentioned', '视频里没说价格'],
     'd.what': ['What it is', '这是什么'], 'd.verdict': ['Their verdict', '主播评价'], 'd.where': ['Where', '在哪吃'], 'd.watch': ['Watch them eat it', '看原画面'],
-    'fx': ['C$ amounts use roughly ¥1 = C$0.19.', '加元按约 1 元人民币 = 0.19 加元换算。'],
+    'fx': ['C$ amounts use roughly ¥1 = C$0.19.', '价格后面的 C$ 是加元，按 1 元人民币约 0.19 加元换算。'],
     'gen': ['Built {d} from {n} episodes.', '{d} 生成，基于 {n} 期视频。'],
     'v.all': ['All provinces', '全部省份'], 'p.title': ['Not yet summarized', '尚未整理']
   };
@@ -53,7 +53,7 @@
   const $ = (s, el = document) => el.querySelector(s);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* storage unavailable */ } } };
-  const state = { lang: store.get('roa-lang') || 'both', prov: 'all', cat: 'all', heat: 5, sort: 'score', q: '', vprov: 'all', mapSel: null };
+  const state = { lang: 'zh', prov: 'all', cat: 'all', heat: 5, sort: 'score', q: '', vprov: 'all', mapSel: null };
   let D, MAP; const byId = {}, cityById = {}, dishById = {}, provById = {};
 
   const isZh = () => state.lang === 'zh';
@@ -71,10 +71,10 @@
   const pcol = (p) => `var(--p-${p})`;
   const enTitle = (v) => (v.title_en && v.title_en !== v.title_zh && /[A-Za-z]{3}/.test(v.title_en) ? v.title_en : '');
   const yt = (id, q) => `https://i.ytimg.com/vi/${id}/${q}.jpg`;
-  const stars = (n) => `<span class="stars" aria-label="${n} out of 5">${'●'.repeat(n)}<span class="off">${'●'.repeat(5 - n)}</span></span>`;
+  const stars = (n) => `<span class="stars" aria-label="评分 ${n}/5">${'●'.repeat(n)}<span class="off">${'●'.repeat(5 - n)}</span></span>`;
   const drops = (n, kind) => `<span class="drops ${kind}" aria-hidden="true">${Array.from({ length: 5 }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span>`;
-  const heatMeter = (sp) => `<div class="heat-m" aria-label="numbing ${sp.ma} of 5, chili heat ${sp.la} of 5"><div class="heat-row">麻${drops(sp.ma, 'ma')}</div><div class="heat-row">辣${drops(sp.la, 'la')}</div></div>`;
-  const priceTag = (d) => (d.price_cny ? `<span class="price">¥${d.price_cny}<small> ≈${cad(d.price_cny)}</small></span>` : (d.price_cny === 0 ? `<span class="price">${isZh() ? '免费' : 'free'}</span>` : ''));
+  const heatMeter = (sp) => `<div class="heat-m" aria-label="麻 ${sp.ma}/5，辣 ${sp.la}/5"><div class="heat-row">麻${drops(sp.ma, 'ma')}</div><div class="heat-row">辣${drops(sp.la, 'la')}</div></div>`;
+  const priceTag = (d) => (d.price_cny ? `<span class="price">¥${d.price_cny}<small> 约${cad(d.price_cny)}</small></span>` : (d.price_cny === 0 ? `<span class="price">${isZh() ? '免费' : 'free'}</span>` : ''));
   const smooth = () => (matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth');
 
   /* ---------- static text ---------- */
@@ -113,7 +113,7 @@
       if (corner) { cx += (C - cx) * 0.2; cy += (C - cy) * 0.2; } else { if (r !== 1) cy += (C - cy) * 0.12; if (col !== 1) cx += (C - cx) * 0.12; }
       const zh = c.zh.replace(/（.*）/, '');
       const en = c.en.replace(/ \(.*\)/, '').toUpperCase();
-      cells += `<g class="cell" tabindex="0" role="link" data-city="${c.id}" aria-label="${esc(c.en)} ${esc(c.zh)}">
+      cells += `<g class="cell" tabindex="0" role="link" data-city="${c.id}" aria-label="${esc(c.zh)}">
         <rect x="${x}" y="${y}" width="${S}" height="${S}" fill="url(#oil${heat})"></rect>
         <text x="${cx}" y="${cy + (isZh() ? 9 : 2)}" text-anchor="middle" font-family="Noto Serif SC, serif" font-weight="900" font-size="${corner ? 21 : (zh.length > 2 ? 21 : 27)}" fill="#FFF4E2">${esc(zh)}</text>
         ${isZh() ? '' : `<text x="${cx}" y="${cy + 20}" text-anchor="middle" font-family="Figtree, sans-serif" font-size="${corner ? 8.5 : 10.5}" font-weight="700" fill="#FFE2BC" opacity=".92" letter-spacing="1.2">${esc(en)}</text>`}</g>`;
@@ -125,7 +125,7 @@
       bubbles += `<circle class="bub" cx="${(C + Math.cos(ang) * rr).toFixed(1)}" cy="${(C + Math.sin(ang) * rr).toFixed(1)}" r="${(2 + rnd() * 4).toFixed(1)}" fill="none" stroke="#FFD9A0" stroke-width="1.2" style="animation-delay:${(rnd() * 3.6).toFixed(2)}s"></circle>`;
     }
     const grid = `M${O + S} ${O}V${O + 3 * S}M${O + 2 * S} ${O}V${O + 3 * S}M${O} ${O + S}H${O + 3 * S}M${O} ${O + 2 * S}H${O + 3 * S}`;
-    svg.innerHTML = `<title id="pot-title">A nine-grid hot pot. Each cell is a city; select one to jump to it.</title><defs>${grads}<clipPath id="potclip"><circle cx="${C}" cy="${C}" r="${R}"></circle></clipPath></defs>
+    svg.innerHTML = `<title id="pot-title">九宫格火锅：每一格是一座城市，点击跳到对应章节。</title><defs>${grads}<clipPath id="potclip"><circle cx="${C}" cy="${C}" r="${R}"></circle></clipPath></defs>
       <circle cx="${C}" cy="${C}" r="194" fill="#2b2420"></circle><circle cx="${C}" cy="${C}" r="186" fill="none" stroke="#4a3d35" stroke-width="2"></circle>
       <g clip-path="url(#potclip)"><circle cx="${C}" cy="${C}" r="${R}" fill="url(#oil3)"></circle>${cells}
         <path d="${grid}" stroke="#D9B27A" stroke-width="7" stroke-linecap="round"></path><path d="${grid}" stroke="#FFF1D6" stroke-width="1.5" opacity=".55"></path>
@@ -157,7 +157,7 @@
     });
     D.cities.filter((c) => c.lat && c.lon).sort((a, b) => b._n - a._n).forEach((c) => {
       const [x, y] = proj(c.lon, c.lat); const r = 5 + Math.sqrt(c._n) * 2.6;
-      h += `<g class="dot" tabindex="0" role="button" data-city="${c.id}" aria-label="${esc(c.en)} ${esc(c.zh)}, ${c._n} dishes">
+      h += `<g class="dot" tabindex="0" role="button" data-city="${c.id}" aria-label="${esc(c.zh)}，${c._n} 道菜">
         <circle class="halo" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(r + 6).toFixed(1)}" style="stroke:${pcol(c.province)}"></circle>
         <circle class="d" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" style="fill:${pcol(c.province)}"></circle>
         ${/other|border/.test(c.id) ? '' : labelAt(c, x, y, r)}</g>`;
@@ -170,7 +170,7 @@
     });
     if (!state.mapSel) state.mapSel = (cityById.kunming || D.cities[0]).id;
     mapCard();
-    $('#legend').innerHTML = PROV_ORDER.map((p) => `<li><i style="background:${pcol(p)}"></i>${esc(provById[p].en)} ${esc(provById[p].zh)}${D.cities.some((c) => c.province === p) ? '' : ` <span class="muted">· ${ui('p.title')}</span>`}</li>`).join('');
+    $('#legend').innerHTML = PROV_ORDER.map((p) => `<li><i style="background:${pcol(p)}"></i>${esc(provById[p].zh)}${D.cities.some((c) => c.province === p) ? '' : ` <span class="muted">· ${ui('p.title')}</span>`}</li>`).join('');
   }
   function labelAt(c, x, y, r) {
     const t = esc(name(c).replace(/ \(.*\)|（.*）/, '')); const side = LABEL_SIDE[c.id] || 'right';
@@ -185,7 +185,7 @@
     const top = (c.must_eat || []).slice(0, 3).map((id) => dishById[id]).filter(Boolean);
     $('#map-card').innerHTML = `<img class="mc-img" src="${yt(c._lead, 'maxresdefault')}" alt="" loading="lazy">
       <div class="mc-body"><p class="eyebrow" style="color:${pcol(c.province)};margin:0">${esc(name(provById[c.province]))}</p>
-      <div class="mc-name"><b>${esc(c.zh)}</b><span>${esc(c.en)}</span></div>
+      <div class="mc-name"><b>${esc(c.zh)}</b></div>
       <p>${one(c, 'verdict')}</p>
       ${top.length ? `<div class="tags">${top.map((d) => `<span class="tag">${esc(d.zh)} · ${esc(d.en)}</span>`).join('')}</div>` : ''}
       <a class="go" href="#city-${c.id}" data-go="${c.id}">${ui('c.read')}</a></div>`;
@@ -195,11 +195,11 @@
   function renderCityIndex() {
     $('#city-index').innerHTML = PROV_ORDER.filter((p) => D.cities.some((c) => c.province === p)).map((p) => {
       const cs = D.cities.filter((c) => c.province === p).sort((a, b) => b._n - a._n);
-      return `<div class="ci-group"><h3 style="color:${pcol(p)}">${esc(provById[p].en)} · ${esc(provById[p].zh)}</h3><div class="ci-links">${cs.map((c) => `<a href="#city-${c.id}" data-go="${c.id}"><b>${esc(c.zh)}</b>${isZh() ? '' : esc(c.en)} <small>${c._n}</small></a>`).join('')}</div></div>`;
+      return `<div class="ci-group"><h3 style="color:${pcol(p)}">${esc(provById[p].zh)}</h3><div class="ci-links">${cs.map((c) => `<a href="#city-${c.id}" data-go="${c.id}"><b>${esc(c.zh)}</b>${isZh() ? '' : esc(c.en)} <small>${c._n}</small></a>`).join('')}</div></div>`;
     }).join('');
   }
   function playBtn(vid, t, q, cityId) {
-    return `<button type="button" class="play" data-v="${vid}" data-t="${t || 0}" data-qz="${esc(q?.quote_zh || '')}" data-qe="${esc(q?.quote_en || '')}" data-c="${cityId || ''}" aria-label="Play from ${mmss(t)}">${mmss(t)}</button>`;
+    return `<button type="button" class="play" data-v="${vid}" data-t="${t || 0}" data-qz="${esc(q?.quote_zh || '')}" data-qe="${esc(q?.quote_en || '')}" data-c="${cityId || ''}" aria-label="从 ${mmss(t)} 开始播放">${mmss(t)}</button>`;
   }
   function quoteHTML(q, cityId) {
     return `<figure class="q"><p class="qzh">${esc(q.quote_zh)}</p>${isZh() ? '' : `<p class="qen">${esc(q.quote_en)}</p>`}
@@ -226,7 +226,7 @@
       const cs = D.cities.filter((c) => c.province === p).sort((a, b) => b._n - a._n);
       if (!cs.length) return;
       const pr = provById[p];
-      h += `<div class="prov-band" style="--pc:${pcol(p)}" id="prov-${p}"><div class="wrap"><h3>${esc(pr.zh)}</h3><span class="pen">${esc(pr.en)}</span><p>${one(pr, 'blurb')}</p></div></div>`;
+      h += `<div class="prov-band" style="--pc:${pcol(p)}" id="prov-${p}"><div class="wrap"><h3>${esc(pr.zh)}</h3><p>${one(pr, 'blurb')}</p></div></div>`;
       cs.forEach((c) => {
         const must = (c.must_eat || []).map((id) => dishById[id]).filter(Boolean);
         const rest = D.dishes.filter((d) => d.city === c.id && !must.includes(d)).sort((a, b) => b.score - a.score);
@@ -234,12 +234,12 @@
         h += `<article class="city" id="city-${c.id}" style="--pc:${pcol(p)}" aria-labelledby="ct-${c.id}" data-screen-label="${esc(c.en)}"><div class="wrap">
           <div class="city-banner"><img src="${yt(c._lead, 'maxresdefault')}" alt="" loading="lazy">
             <div class="banner-in"><div class="sign-board" id="ct-${c.id}">${esc(c.zh.replace(/（.*）/, ''))}</div>
-              <div class="banner-text"><span class="ct-meta">${esc(pr.en)} · ${c._n} ${ui('c.dishes')} · ${vids.length} ${ui('c.eps')}</span>
-                <span class="ct-en">${esc(c.en)}</span></div></div></div>
+              <div class="banner-text"><span class="ct-meta">${esc(pr.zh)} · ${c._n} ${ui('c.dishes')} · ${vids.length} ${ui('c.eps')}</span>
+                <span class="ct-en">${esc(c.zh)}</span></div></div></div>
           <div class="city-body">
             <div class="verdict-wrap"><p class="verdict">${esc(isZh() ? c.verdict_zh : c.verdict_en)}</p>${state.lang === 'both' ? `<p class="verdict-zh">${esc(c.verdict_zh)}</p>` : ''}</div>
             <div class="city-facts">
-              ${c.typical_meal_cny != null ? `<div class="fact"><span>${ui('c.meal')}</span><b>¥${c.typical_meal_cny}<small>≈${cad(c.typical_meal_cny)}</small></b></div>` : ''}
+              ${c.typical_meal_cny != null ? `<div class="fact"><span>${ui('c.meal')}</span><b>¥${c.typical_meal_cny}<small>约${cad(c.typical_meal_cny)}</small></b></div>` : ''}
               <div class="fact"><span>${ui('c.heat')}</span>${heatMeter(c.spice || { ma: 0, la: 0 })}</div>
               ${(c.vibe_tags || []).length ? `<div class="tags">${c.vibe_tags.map((t) => `<span class="tag">${esc(isZh() ? t.zh : t.en)}</span>`).join('')}</div>` : ''}
             </div>
@@ -281,7 +281,7 @@
     $('#menu-list').innerHTML = list.length ? list.map((d) => `<li class="mi"><button type="button" data-dish="${d.id}">
       <img src="${d.img}" alt="" loading="lazy" width="64" height="64">
       <span class="mt"><span class="l1"><span class="mzh">${esc(d.zh)}</span>${isZh() ? '' : `<span class="men">${esc(d.en)}</span>`}<span class="lead"></span><span class="mp">${d.price_cny != null ? '¥' + d.price_cny : '—'}</span></span>
-      <span class="l2"><span><i class="pdot" style="background:${pcol(d.province)}"></i>${esc(name(cityById[d.city]))}</span>${stars(d.score)}<span>${d.spice.ma ? '麻' + d.spice.ma + ' · ' : ''}辣${d.spice.la}</span>${d.price_cny ? `<span>≈${cad(d.price_cny)}</span>` : ''}</span></span></button></li>`).join('')
+      <span class="l2"><span><i class="pdot" style="background:${pcol(d.province)}"></i>${esc(name(cityById[d.city]))}</span>${stars(d.score)}<span>${d.spice.ma ? '麻' + d.spice.ma + ' · ' : ''}辣${d.spice.la}</span>${d.price_cny ? `<span>约${cad(d.price_cny)}</span>` : ''}</span></span></button></li>`).join('')
       : `<li class="empty">${ui('m.empty')}</li>`;
   }
 
@@ -304,9 +304,9 @@
   function openPlayer(vid, t, qz, qe, cityId) {
     const v = byId[vid] || (D.pending || []).find((p) => p.id === vid);
     const start = Math.max(0, Math.round(t || 0) - 1);
-    $('#pl-embed').outerHTML = `<iframe id="pl-embed" src="https://www.youtube-nocookie.com/embed/${vid}?start=${start}&amp;autoplay=1&amp;rel=0&amp;playsinline=1" title="${esc(v?.title_zh || 'YouTube video')}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen=""></iframe>`;
+    $('#pl-embed').outerHTML = `<iframe id="pl-embed" src="https://www.youtube-nocookie.com/embed/${vid}?start=${start}&amp;autoplay=1&amp;rel=0&amp;playsinline=1" title="${esc(v?.title_zh || 'YouTube 视频')}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen=""></iframe>`;
     const c = cityById[cityId] || cityById[v?.city] || provById[v?.province];
-    $('#pl-where').textContent = c ? `${c.en} · ${c.zh}` : '';
+    $('#pl-where').textContent = c ? c.zh : '';
     $('#pl-where').style.color = c ? pcol(c.province || c.id) : '';
     $('#pl-title').textContent = v?.title_zh || '';
     $('#pl-quote').innerHTML = qz ? `<p class="qzh">${esc(qz)}</p>${!isZh() && qe ? `<p class="qen">${esc(qe)}</p>` : ''}` : '';
@@ -320,9 +320,9 @@
     const d = dishById[id]; if (!d) return; const c = cityById[d.city];
     $('#dish-body').innerHTML = `<div class="dd" style="--pc:${pcol(d.province)}">
       <img class="dd-img" src="${d.img.replace(/hq(\d)\.jpg$/, 'hq$1.jpg')}" alt="">
-      <button type="button" class="x-btn" data-close-dish="" aria-label="Close">×</button>
+      <button type="button" class="x-btn" data-close-dish="" aria-label="关闭">×</button>
       <div class="dd-body">
-        <p class="eyebrow" style="color:${pcol(d.province)};margin:0">${esc(c ? `${c.en} · ${c.zh}` : '')} · ${CATS[d.category]?.[isZh() ? 1 : 0] || ''}</p>
+        <p class="eyebrow" style="color:${pcol(d.province)};margin:0">${esc(c ? c.zh : '')} · ${CATS[d.category]?.[isZh() ? 1 : 0] || ''}</p>
         <div><div class="dd-zh" id="dd-title">${esc(d.zh)}</div>${isZh() ? '' : `<div class="dd-en">${esc(d.en)}</div>`}${d.pinyin ? `<div class="dd-py">${esc(d.pinyin)}</div>` : ''}</div>
         <div class="row">${priceTag(d) || `<span class="muted">${ui('m.noprice')}</span>`}${stars(d.score)}${heatMeter(d.spice)}</div>
         ${d.price_note_en ? `<p class="muted">${one(d, 'price_note')}</p>` : ''}
@@ -339,7 +339,15 @@
     applyStatic(); renderHero(); renderPot(); renderMap(); renderCityIndex(); renderCities(); renderFilters(); renderMenu(); renderVideos(); renderNotes();
     $('#foot-gen').textContent = ui('gen').replace('{d}', D.generated).replace('{n}', D.videos.length);
   }
+  // YouTube serves a 120x90 grey placeholder when a high-res cover doesn't exist; fall back to the standard cover.
+  function coverFallback(e) {
+    const img = e.target;
+    if (!(img instanceof HTMLImageElement) || !/i\.ytimg\.com\/vi\/[^/]+\/(maxresdefault|sddefault)\.jpg/.test(img.src)) return;
+    if (e.type === 'error' || img.naturalWidth <= 120) img.src = img.src.replace(/(maxresdefault|sddefault)\.jpg$/, 'hqdefault.jpg');
+  }
   function wire() {
+    document.addEventListener('load', coverFallback, true);
+    document.addEventListener('error', coverFallback, true);
     document.addEventListener('click', (e) => {
       const p = e.target.closest('[data-v]');
       if (p) { e.preventDefault(); openPlayer(p.dataset.v, +p.dataset.t, p.dataset.qz, p.dataset.qe, p.dataset.c); return; }
@@ -381,6 +389,6 @@
   }
   boot().catch((err) => {
     console.error(err);
-    document.querySelector('main').insertAdjacentHTML('afterbegin', `<p class="wrap" style="padding:24px 20px;color:var(--chili)">The guide data didn't load (${esc(err.message)}). Reload the page to try again.</p>`);
+    document.querySelector('main').insertAdjacentHTML('afterbegin', `<p class="wrap" style="padding:24px 20px;color:var(--chili)">数据没有加载出来（${esc(err.message)}），请刷新页面重试。</p>`);
   });
 })();

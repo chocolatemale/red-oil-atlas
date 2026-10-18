@@ -314,3 +314,15 @@ dialog::backdrop { background: rgba(10, 6, 4, .78); backdrop-filter: blur(4px); 
 .verdict { font: 400 clamp(19px, 1.9vw, 23px)/1.5 var(--f-display); letter-spacing: .005em; }
 .city-body { grid-template-columns: minmax(0, 1fr); }
 .city-body > * { min-width: 0; }
+/* Chinese-first typography */
+html[lang="zh-CN"] .h1-en { font: 900 clamp(40px, 6.2vw, 80px)/1.12 var(--f-han); letter-spacing: .04em; }
+html[lang="zh-CN"] h2 { font-family: var(--f-han); font-weight: 900; letter-spacing: .04em; line-height: 1.15; }
+html[lang="zh-CN"] h3, html[lang="zh-CN"] .ct-en, html[lang="zh-CN"] .verdict { font-family: var(--f-han); }
+html[lang="zh-CN"] .ct-en { font-weight: 900; letter-spacing: .06em; }
+html[lang="zh-CN"] .verdict { font-weight: 600; line-height: 1.7; }
+html[lang="zh-CN"] .eyebrow, html[lang="zh-CN"] .subhead, html[lang="zh-CN"] .fact > span, html[lang="zh-CN"] .stats dt, html[lang="zh-CN"] .ct-meta { letter-spacing: .12em; }
+html[lang="zh-CN"] body { line-height: 1.75; }
+.brand-en { font: 600 14px/1 var(--f-han); color: var(--ink-2); }
+.mi .mzh { white-space: normal; min-width: 0; }
+.mi .mp { flex-shrink: 0; }
+@media (max-width: 480px) { .menu { columns: 1; } .mi .lead { display: none; } .mi .l1 { justify-content: space-between; } }
